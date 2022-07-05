@@ -75,7 +75,8 @@ func main() {
 
 - Work with not exist file
 
-use `Template test.go <TAB>`, it will create a file named `test.go` in current path
+use `Template test.go <TAB>`, it will create a file named `test.go` in current path and auto open
+this file insert template.
 
 ## Donate
 
