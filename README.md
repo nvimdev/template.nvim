@@ -32,7 +32,7 @@ temp.email    -- email address
 
 - `{{_file_name}}`      current file name
 
-- `{{_author_}}`        autor info
+- `{{_author_}}`        author info
 
 - `{{_email_}}`         email adrress
 
@@ -80,7 +80,7 @@ this file insert template.
 
 - Find all templates
 
-tempalte.nvim use `telescope`. so you need register template telescope extension to `telescope`
+template.nvim use `telescope`. so you need register template telescope extension to `telescope`
 
 ```lua
 
