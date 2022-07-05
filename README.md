@@ -78,6 +78,18 @@ func main() {
 use `Template test.go <TAB>`, it will create a file named `test.go` in current path and auto open
 this file insert template.
 
+- Find all templates
+
+tempalte.nvim use `telescope`. so you need register template telescope extension to `telescope`
+
+```lua
+
+require("telescope").load_extension('find_template')
+
+```
+
+Then you can use `Telescope find_template` to check all templates
+
 ## Donate
 
 [![](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/bobbyhub)
