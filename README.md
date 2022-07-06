@@ -2,6 +2,12 @@
 
 Quickly insert templates into file.
 
+<img
+src="https://user-images.githubusercontent.com/41671631/177514324-aad607cd-a25b-4c1e-ab81-13d780ec10f0.gif"
+height="50%"
+weight="50%"
+/>
+
 ## Install
 
 ```lua
