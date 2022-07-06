@@ -40,7 +40,7 @@ temp.email    -- email address
 
 ### Define your tempalte
 
-Define a template for a go file. template named `main_owner.go` in `temp.dir` .in my local config it
+Define a template for a go file. template named `main_owner.go` in `temp.temp_dir` .in my local config it
 to `~/.config/nvim/template`
 
 ```go
