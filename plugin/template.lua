@@ -7,8 +7,12 @@ end,{
   nargs = '*',
   complete = function(arg,line)
     local cmd = vim.split(line,'%s+')
+    table.remove(cmd,1)
+    local ft = vim.bo.filetype
 
-    local ft = string.len(cmd[2]) ~= 0 and cmd[2]:match('[^.]+$') or vim.bo.filetype
+    if #cmd > 1 and cmd[1]:find('%.%w+$') then
+      ft = cmd[1]:match('[^.]+$')
+    end
 
     local list = temp.get_temp_list()
     return vim.tbl_filter(function (s)

@@ -13,10 +13,13 @@ end
 
 function temp.get_temp_list()
   local all_temps = vim.split(fn.globpath(temp.temp_dir,'*/*'),'\n')
+
   local list = {}
   for _,v in pairs(all_temps) do
-    v = v:sub(#temp.temp_dir, -1)
-    local ft,tp = unpack(vim.split(v,'/',{trimempty = true }))
+    local _split = vim.split(v,'/',{trimempty = true })
+
+    local ft,tp = _split[#_split - 1],_split[#_split]
+
     if list[ft] == nil then
       list[ft] = {}
     end
@@ -27,26 +30,30 @@ function temp.get_temp_list()
 end
 
 local expr = {
-'{{_date_}}', '{{_cursor_}}','{{_file_name_}}','{{_author_}}','{{_email_}}'
+'{{_date_}}', '{{_cursor_}}','{{_file_name_}}','{{_author_}}','{{_email_}}',
+'{{_variable_}}'
 }
 
 local expand_expr = {
-  [expr[1]] = function(line)
+  [expr[1]] = function(ctx)
     local date = os.date('%Y-%m-%d %H:%M:%S')
-    return line:gsub(expr[1],date)
+    return ctx.line:gsub(expr[1],date)
   end,
-  [expr[2]] = function(line)
-    return line:gsub(expr[2],"")
+  [expr[2]] = function(ctx)
+    return ctx.line:gsub(expr[2],"")
   end,
-  [expr[3]] = function(line)
+  [expr[3]] = function(ctx)
     local file_name = vim.fn.expand('%:t:r')
-    return line:gsub(expr[3],file_name)
+    return ctx.line:gsub(expr[3],file_name)
   end,
-  [expr[4]] = function(line)
-    return line:gsub(expr[4],temp.author)
+  [expr[4]] = function(ctx)
+    return ctx.line:gsub(expr[4],temp.author)
   end,
-  [expr[5]] = function(line)
-    return line:gsub(expr[5],temp.email)
+  [expr[5]] = function(ctx)
+    return ctx.line:gsub(expr[5],temp.email)
+  end,
+  [expr[6]] = function(ctx)
+    return ctx.line:gsub(expr[6],ctx.var)
   end
 }
 
@@ -68,13 +75,24 @@ end
 
 function temp:generate_template(params)
   local param_list = vim.split(params,' ')
-  local param
+  local file,param,_variable
 
-  if #param_list > 1 then
-    create_and_load(param_list[1])
-    param = param_list[2]
-  else
-    param = params
+  local conds = {'var=','%.%w+'}
+
+  for _,p in pairs(param_list) do
+    for idx,cond in pairs(conds) do
+      if p:find(cond) and idx == 1 then
+        _variable = p:gsub(cond,'')
+      elseif p:find(cond) and idx == 2 then
+        file = p
+      else
+        param = p
+      end
+    end
+  end
+
+  if file ~= nil then
+    create_and_load(file)
   end
 
   local current_buf = api.nvim_get_current_buf()
@@ -82,8 +100,8 @@ function temp:generate_template(params)
   local temps = get_template(dir)
   local index = 0
 
-  for i,file in pairs(temps) do
-    if file:find(param) then
+  for i,f in pairs(temps) do
+    if f:find(param) then
       index = i
       break
     end
@@ -93,11 +111,14 @@ function temp:generate_template(params)
   local cursor_pos = {}
   local lnum = 0
 
+  local ctx = { var = _variable, line = ''}
+
   for line in io.lines(temps[index]) do
     lnum = lnum + 1
     for idx,key in pairs(expr) do
       if line:find(key) then
-        line = expand_expr[expr[idx]](line)
+        ctx.line = line
+        line = expand_expr[expr[idx]](ctx)
 
         if idx == 2 then
           cursor_pos = { lnum , 2}

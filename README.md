@@ -36,6 +36,8 @@ temp.email    -- email address
 
 - `{{_email_}}`         email adrress
 
+- `{{_variable_}}`      variable name
+
 ### Define your tempalte
 
 Define a template for a go file. template named `main_owner.go` in `temp.dir` .in my local config it
@@ -77,6 +79,37 @@ func main() {
 
 use `Template test.go <TAB>`, it will create a file named `test.go` in current path and auto open
 this file insert template.
+
+- Work with not exist file and custom variable
+
+a lua template file named `nvim_temp.lua`, content is
+
+```lua
+local api,fn = vim.api,vim.fn
+local {{_variable_}}
+
+{{_cursor_}}
+
+return {{_variable_}}
+
+```
+
+use `Template test.lua var=template <TAB>` then it will auto fill template name `nvim_temp` if there 
+only has one lua template file.
+
+```lua
+local api,fn = vim.api,vim.fn
+local template
+
+| -- cursor here
+
+return template
+
+```
+
+- Work with exist file and custom variable
+
+use `Template var=tempalte <TAB>`
 
 - Find all templates
 
