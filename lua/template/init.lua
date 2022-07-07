@@ -1,7 +1,8 @@
 local temp = {}
-local uv = vim.loop
-local api = vim.api
-local fn = vim.fn
+local uv,api,fn = vim.loop,vim.api,vim.fn
+local is_windows = vim.loop.os_uname().sysname == "Windows"
+local sep = is_windows and '\\' or '/'
+
 temp.temp_dir = ''
 temp.author = ''
 temp.email = ''
@@ -12,11 +13,11 @@ local function get_template(dir)
 end
 
 function temp.get_temp_list()
-  local all_temps = vim.split(fn.globpath(temp.temp_dir,'*/*'),'\n')
+  local all_temps = vim.split(fn.globpath(temp.temp_dir,'*'..sep ..'*'),'\n')
 
   local list = {}
   for _,v in pairs(all_temps) do
-    local _split = vim.split(v,'/',{trimempty = true })
+    local _split = vim.split(v,sep,{trimempty = true })
 
     local ft,tp = _split[#_split - 1],_split[#_split]
 
@@ -34,6 +35,7 @@ local expr = {
 '{{_variable_}}'
 }
 
+--@private
 local expand_expr = {
   [expr[1]] = function(ctx)
     local date = os.date('%Y-%m-%d %H:%M:%S')
@@ -57,9 +59,7 @@ local expand_expr = {
   end
 }
 
-local is_windows = vim.loop.os_uname().sysname == "Windows"
-local sep = is_windows and '\\' or '/'
-
+--@private
 local function create_and_load(file)
   local current_path = vim.fn.getcwd()
   file = current_path .. sep .. file
@@ -96,7 +96,7 @@ function temp:generate_template(params)
   end
 
   local current_buf = api.nvim_get_current_buf()
-  local dir = self.temp_dir .. vim.bo.filetype
+  local dir = self.temp_dir ..sep .. vim.bo.filetype
   local temps = get_template(dir)
   local index = 0
 
@@ -144,7 +144,7 @@ function temp:generate_template(params)
 end
 
 function temp.get_all_temps()
-  return vim.split(fn.globpath(temp.temp_dir,'*/*'),'\n')
+  return vim.split(fn.globpath(temp.temp_dir,'*'..sep..'*'),'\n')
 end
 
 return temp
