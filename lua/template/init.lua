@@ -96,7 +96,14 @@ function temp:generate_template(params)
   end
 
   local current_buf = api.nvim_get_current_buf()
-  local dir = self.temp_dir .. vim.bo.filetype
+  local last_char = string.sub(self.temp_dir,-1);
+  local dir;
+  if last_char == '/' or last_char == '\\'
+  then
+    dir = self.temp_dir .. vim.bo.filetype
+  else
+    dir = self.temp_dir .. sep .. vim.bo.filetype
+  end
   local temps = get_template(dir)
   local index = 0
 
