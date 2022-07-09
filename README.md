@@ -44,7 +44,7 @@ temp.email    -- email address
 
 - `{{_variable_}}`      variable name
 
-- `{{_FILE_NAME_}}`     all-caps file name
+- `{{_upper_file_}}`     all-caps file name
 
 ### Define your tempalte
 

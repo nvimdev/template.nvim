@@ -32,7 +32,7 @@ end
 
 local expr = {
 '{{_date_}}', '{{_cursor_}}','{{_file_name_}}','{{_author_}}','{{_email_}}',
-'{{_variable_}}', '{{_FILE_NAME_}}'
+'{{_variable_}}', '{{_upper_file_}}'
 }
 
 --@private
