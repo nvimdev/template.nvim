@@ -44,6 +44,8 @@ temp.email    -- email address
 
 - `{{_variable_}}`      variable name
 
+- `{{_upper_file_}}`     all-caps file name
+
 ### Define your tempalte
 
 Define a template for a go file. template named `main_owner.go` in `temp.temp_dir` .in my local config it
@@ -54,7 +56,7 @@ to `~/.config/nvim/template`
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package {{_file_name}}
+package {{_file_name_}}
 
 func main() {
  {{_cursor_}}
