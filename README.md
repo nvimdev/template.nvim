@@ -36,7 +36,7 @@ temp.email    -- email address
 
 - `{{_cursor_}}`        set cursor here
 
-- `{{_file_name}}`      current file name
+- `{{_file_name_}}`      current file name
 
 - `{{_author_}}`        author info
 
