@@ -32,7 +32,7 @@ end
 
 local expr = {
 '{{_date_}}', '{{_cursor_}}','{{_file_name_}}','{{_author_}}','{{_email_}}',
-'{{_variable_}}'
+'{{_variable_}}', '{{_FILE_NAME_}}'
 }
 
 --@private
@@ -56,6 +56,10 @@ local expand_expr = {
   end,
   [expr[6]] = function(ctx)
     return ctx.line:gsub(expr[6],ctx.var)
+  end,
+  [expr[7]] = function(ctx)
+    local file_name = string.upper(vim.fn.expand('%:t:r'))
+    return ctx.line:gsub(expr[7],file_name)
   end
 }
 
