@@ -36,13 +36,15 @@ temp.email    -- email address
 
 - `{{_cursor_}}`        set cursor here
 
-- `{{_file_name}}`      current file name
+- `{{_file_name_}}`      current file name
 
 - `{{_author_}}`        author info
 
 - `{{_email_}}`         email adrress
 
 - `{{_variable_}}`      variable name
+
+- `{{_upper_file_}}`     all-caps file name
 
 ### Define your tempalte
 
@@ -54,7 +56,7 @@ to `~/.config/nvim/template`
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package {{_file_name}}
+package {{_file_name_}}
 
 func main() {
  {{_cursor_}}
