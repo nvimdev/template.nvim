@@ -30,7 +30,7 @@ temp.email    -- email address
 
 ## Basic Usage
 
-### Template Grammer
+### Template Grammar
 
 - `{{_date_}}`          insert current date
 
