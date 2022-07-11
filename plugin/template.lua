@@ -1,6 +1,6 @@
 local api = vim.api
 local temp = require('template')
-local temp_group = api.nvim_create_augroup('Template',{clear = true})
+local temp_group = api.nvim_create_augroup('Template', { clear = true })
 
 api.nvim_create_user_command('Template', function(args)
   require('template'):generate_template(args.args)
@@ -22,7 +22,7 @@ end, {
   end,
 })
 
-api.nvim_create_autocmd('LspAttach',{
+api.nvim_create_autocmd('LspAttach', {
   group = temp_group,
   callback = function()
     if vim.bo.filetype ~= 'lua' then
@@ -32,5 +32,5 @@ api.nvim_create_autocmd('LspAttach',{
     if temp.check_path_in() then
       vim.lsp.stop_client(vim.lsp.get_active_clients())
     end
-  end
+  end,
 })
