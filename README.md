@@ -20,7 +20,7 @@ use {'glepnir/template.nvim'}
 ## Options
 
 ```lua
-local temp = require('tempalte')
+local temp = require('template')
 
 temp.temp_dir -- template directory
 temp.author   -- your name
@@ -30,7 +30,7 @@ temp.email    -- email address
 
 ## Basic Usage
 
-### Template Grammer
+### Template Grammar
 
 - `{{_date_}}`          insert current date
 
@@ -46,7 +46,7 @@ temp.email    -- email address
 
 - `{{_upper_file_}}`     all-caps file name
 
-### Define your tempalte
+### Define your template
 
 Define a template for a go file. template named `main_owner.go` in `temp.temp_dir` .in my local config it
 to `~/.config/nvim/template`
@@ -117,7 +117,7 @@ return template
 
 - Work with exist file and custom variable
 
-use `Template var=tempalte <TAB>`
+use `Template var=template <TAB>`
 
 - Find all templates
 
