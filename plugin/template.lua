@@ -30,7 +30,7 @@ api.nvim_create_autocmd('LspAttach', {
     end
 
     if temp.check_path_in() then
-      vim.lsp.stop_client(vim.lsp.get_active_clients())
+      vim.diagnostic.disable()
     end
   end,
 })
