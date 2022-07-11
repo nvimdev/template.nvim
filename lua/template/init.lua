@@ -164,4 +164,16 @@ function temp.get_all_temps()
   return vim.split(fn.globpath(temp.temp_dir, '*' .. sep .. '*'), '\n')
 end
 
+function temp.check_path_in()
+  local current_path = vim.fn.expand('%:p')
+  local temp_tbl = vim.split(temp.temp_dir,sep)
+  local tbl = { unpack(temp_tbl,#temp_tbl-1,#temp_tbl) }
+  local match_str = table.concat(tbl,sep)
+
+  if current_path:find(match_str) then
+    return true
+  end
+  return false
+end
+
 return temp
