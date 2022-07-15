@@ -78,7 +78,7 @@ It will insert template to this file like
 package main
 
 func main() {
- | -- cusror in there
+ | -- cursor in there
 }
 
 ```
