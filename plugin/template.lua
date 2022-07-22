@@ -22,15 +22,17 @@ end, {
   end,
 })
 
-api.nvim_create_autocmd('LspAttach', {
-  group = temp_group,
-  callback = function()
-    if vim.bo.filetype ~= 'lua' then
-      return
-    end
+if vim.fn.has('nvim-0.8') == 1 then
+  api.nvim_create_autocmd('LspAttach', {
+    group = temp_group,
+    callback = function()
+      if vim.bo.filetype ~= 'lua' then
+        return
+      end
 
-    if temp.check_path_in() then
-      vim.diagnostic.disable()
-    end
-  end,
-})
+      if temp.check_path_in() then
+        vim.diagnostic.disable()
+      end
+    end,
+  })
+end
