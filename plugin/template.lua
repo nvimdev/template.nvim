@@ -10,12 +10,22 @@ end, {
     local cmd = vim.split(line, '%s+')
     table.remove(cmd, 1)
     local ft = vim.bo.filetype
+    if ft == '' then
+      vim.notify('current buffer does not have filetype set')
+      return {}
+    end
 
     if #cmd > 1 and cmd[1]:find('%.%w+$') then
       ft = cmd[1]:match('[^.]+$')
     end
 
     local list = temp.get_temp_list()
+
+    if not list then
+      vim.notify('get all templates list failed')
+      return {}
+    end
+
     return vim.tbl_filter(function(s)
       return string.match(s, '^' .. arg)
     end, list[ft])
