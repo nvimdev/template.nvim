@@ -48,8 +48,9 @@ temp.email    -- email address
 
 ### Define your template
 
-Define a template for a go file. template named `main_owner.go` in `temp.temp_dir` .in my local config it
-to `~/.config/nvim/template`
+You need config the `temp_dir` first like `temp.temp_dir = '~/.config/nvim/template` then create the
+
+a template named `main_owner.go` for go language in the `temp_dir`
 
 ```go
 // Copyright {{_date_}} {{_author_}}. All rights reserved.
@@ -118,6 +119,28 @@ return template
 - Work with exist file and custom variable
 
 use `Template var=template <TAB>`
+
+- Config a fancy keymap
+
+we can define a fancy keymap with the cmdline params like
+
+```lua
+vim.keymap.set('n', '<Leader>t', function()
+  if vim.bo.filetype == 'lua' then
+    return ':Telescope var='
+  end
+
+  if vim.bo.filetype == 'rust' then
+    return '<cmd>Telescope main_owner<CR>'
+  end
+end, { remap = true})
+```
+
+this keymap will check the current filetype, if it's a lua filetype it will input the `Template var=`
+
+in cmdline then just fill the variable name and template name, if filetype it's rust then it will
+
+auto insert the content from `main_owner.rs` template.
 
 - Find all templates
 

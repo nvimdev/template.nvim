@@ -1,31 +1,25 @@
 local temp = {}
 local uv, api, fn = vim.loop, vim.api, vim.fn
-local is_windows = vim.loop.os_uname().sysname == 'Windows'
+local is_windows = uv.os_uname().sysname == 'Windows'
 local sep = is_windows and '\\' or '/'
 
 temp.temp_dir = ''
 temp.author = ''
 temp.email = ''
 
---@private
-local function get_template(dir)
-  return vim.split(fn.globpath(dir, '*'), '\n')
-end
-
 function temp.get_temp_list()
-  local all_temps = vim.split(fn.globpath(temp.temp_dir, '*' .. sep .. '*'), '\n')
+  local all_temps = vim.split(fn.globpath(temp.temp_dir, '*'), '\n')
 
   local list = {}
   for _, v in pairs(all_temps) do
-    local _split = vim.split(v, sep, { trimempty = true })
-
-    local ft, tp = _split[#_split - 1], _split[#_split]
+    local tbl = vim.split(v, sep, { trimempty = true })
+    local ft = vim.filetype.match({ filename = tbl[#tbl] })
 
     if list[ft] == nil then
       list[ft] = {}
     end
-    tp = tp:gsub('%.%w+', '')
-    table.insert(list[ft], tp)
+    local tp_name = tbl[#tbl]:match('(.+)%.%w+')
+    table.insert(list[ft], tp_name)
   end
   return list
 end
@@ -50,7 +44,7 @@ local expand_expr = {
     return ctx.line:gsub(expr[2], '')
   end,
   [expr[3]] = function(ctx)
-    local file_name = vim.fn.expand('%:t:r')
+    local file_name = fn.expand('%:t:r')
     return ctx.line:gsub(expr[3], file_name)
   end,
   [expr[4]] = function(ctx)
@@ -63,14 +57,14 @@ local expand_expr = {
     return ctx.line:gsub(expr[6], ctx.var)
   end,
   [expr[7]] = function(ctx)
-    local file_name = string.upper(vim.fn.expand('%:t:r'))
+    local file_name = string.upper(fn.expand('%:t:r'))
     return ctx.line:gsub(expr[7], file_name)
   end,
 }
 
 --@private
 local function create_and_load(file)
-  local current_path = vim.fn.getcwd()
+  local current_path = fn.getcwd()
   file = current_path .. sep .. file
   local ok, fd = pcall(uv.fs_open, file, 'w', 420)
   if not ok then
@@ -82,55 +76,41 @@ local function create_and_load(file)
   vim.cmd(':e ' .. file)
 end
 
-function temp:generate_template(params)
-  local param_list = vim.split(params, ' ')
-  local file, param, _variable
+local function parse_args(args)
+  local data = {}
 
-  local conds = { 'var=', '%.%w+' }
-
-  for _, p in pairs(param_list) do
-    for idx, cond in pairs(conds) do
-      if p:find(cond) and idx == 1 then
-        _variable = p:gsub(cond, '')
-      elseif p:find(cond) and idx == 2 then
-        file = p
-      else
-        param = p
-      end
+  for _, v in pairs(args) do
+    if v:find('^var') then
+      data.var = v
     end
+    if v:find('%.%w+') then
+      data.file = v
+    end
+    data.tp_name = v
   end
 
-  if file ~= nil then
-    create_and_load(file)
+  return data
+end
+
+function temp:generate_template(args)
+  local data = parse_args(args)
+
+  if data.file then
+    create_and_load(data.file)
   end
 
   local current_buf = api.nvim_get_current_buf()
 
-  local last_char = string.sub(self.temp_dir, -1)
-  local dir
-  if last_char == '/' or last_char == '\\' then
-    dir = self.temp_dir .. vim.bo.filetype
-  else
-    dir = self.temp_dir .. sep .. vim.bo.filetype
-  end
-
-  local temps = get_template(dir)
-  local index = 0
-
-  for i, f in pairs(temps) do
-    if f:find(param) then
-      index = i
-      break
-    end
-  end
+  local ext = fn.expand('%:e')
+  local tpl = vim.fs.normalize(temp.temp_dir) .. sep .. data.tp_name .. '.' .. ext
 
   local lines = {}
   local cursor_pos = {}
   local lnum = 0
 
-  local ctx = { var = _variable, line = '' }
+  local ctx = { var = data.var, line = '' }
 
-  for line in io.lines(temps[index]) do
+  for line in io.lines(tpl) do
     lnum = lnum + 1
     for idx, key in pairs(expr) do
       if line:find(key) then
@@ -145,7 +125,7 @@ function temp:generate_template(params)
     table.insert(lines, line)
   end
 
-  if vim.fn.line2byte('$') ~= -1 then
+  if fn.line2byte('$') ~= -1 then
     local content = api.nvim_buf_get_lines(current_buf, 0, -1, false)
     for _, line in pairs(content) do
       table.insert(lines, line)
@@ -160,12 +140,9 @@ function temp:generate_template(params)
   end
 end
 
-function temp.get_all_temps()
-  return vim.split(fn.globpath(temp.temp_dir, '*' .. sep .. '*'), '\n')
-end
-
 function temp.check_path_in()
-  local current_path = vim.fn.expand('%:p')
+  local current_path = fn.expand('%:p')
+  temp.temp_dir = vim.fs.normalize(temp.temp_dir)
   local temp_tbl = vim.split(temp.temp_dir, sep)
   local tbl = { unpack(temp_tbl, #temp_tbl - 1, #temp_tbl) }
   local match_str = table.concat(tbl, sep)

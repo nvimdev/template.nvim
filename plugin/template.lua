@@ -3,9 +3,9 @@ local temp = require('template')
 local temp_group = api.nvim_create_augroup('Template', { clear = true })
 
 api.nvim_create_user_command('Template', function(args)
-  require('template'):generate_template(args.args)
+  require('template'):generate_template(args.fargs)
 end, {
-  nargs = '*',
+  nargs = '+',
   complete = function(arg, line)
     local cmd = vim.split(line, '%s+')
     table.remove(cmd, 1)

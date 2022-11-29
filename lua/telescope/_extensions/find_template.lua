@@ -5,7 +5,8 @@ local make_entry = require('telescope.make_entry')
 local conf = require('telescope.config').values
 
 local temp_list = function()
-  return require('template').get_all_temps()
+  local temp = require('template')
+  return vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
 end
 
 local find_template = function(opts)
