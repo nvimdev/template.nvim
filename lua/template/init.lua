@@ -81,7 +81,7 @@ local function parse_args(args)
 
   for _, v in pairs(args) do
     if v:find('^var') then
-      data.var = v
+      data.var = vim.split(v, '=')[2]
     end
     if v:find('%.%w+') then
       data.file = v
@@ -140,16 +140,27 @@ function temp:generate_template(args)
   end
 end
 
-function temp.check_path_in()
-  local current_path = fn.expand('%:p')
-  temp.temp_dir = vim.fs.normalize(temp.temp_dir)
-  local temp_tbl = vim.split(temp.temp_dir, sep)
-  local tbl = { unpack(temp_tbl, #temp_tbl - 1, #temp_tbl) }
-  local match_str = table.concat(tbl, sep)
+function temp.in_template(buf)
+  local fname = api.nvim_buf_get_name(buf)
+  if #fname == 0 then
+    return false
+  end
+  local list = temp.get_temp_list()
+  if not list[vim.bo[buf].filetype] then
+    return false
+  end
 
-  if current_path:find(match_str) then
+  if fname:find(temp.temp_dir) then
     return true
   end
+
+  local fname_parts = vim.split(fname, sep, { trimempty = true })
+  local tp_name = fname_parts[#fname_parts]:match('(.+)%.%w+')
+
+  if tp_name and vim.tbl_contains(list[vim.bo[buf].filetype], tp_name) then
+    return true
+  end
+
   return false
 end
 

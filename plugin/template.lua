@@ -1,12 +1,11 @@
 local api = vim.api
-local temp = require('template')
-local temp_group = api.nvim_create_augroup('Template', { clear = true })
 
 api.nvim_create_user_command('Template', function(args)
   require('template'):generate_template(args.fargs)
 end, {
   nargs = '+',
   complete = function(arg, line)
+    local temp = require('template')
     local cmd = vim.split(line, '%s+')
     table.remove(cmd, 1)
     local ft = vim.bo.filetype
@@ -32,17 +31,12 @@ end, {
   end,
 })
 
-if vim.fn.has('nvim-0.8') == 1 then
-  api.nvim_create_autocmd('LspAttach', {
-    group = temp_group,
-    callback = function()
-      if vim.bo.filetype ~= 'lua' then
-        return
-      end
-
-      if temp.check_path_in() then
-        vim.diagnostic.disable()
-      end
-    end,
-  })
-end
+api.nvim_create_autocmd('LspAttach', {
+  group = api.nvim_create_augroup('Template', { clear = true }),
+  callback = function(opt)
+    local temp = require('template')
+    if temp.in_template(opt.buf) then
+      vim.diagnostic.disable(opt.buf)
+    end
+  end,
+})
