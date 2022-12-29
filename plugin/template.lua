@@ -12,6 +12,11 @@ end, {
   nargs = '+',
   complete = function(arg, line)
     local temp = require('template')
+    if not temp.temp_dir then
+      vim.notify('[template.nvim] please config the temp_dir variable')
+      return
+    end
+
     local cmd = vim.split(line, '%s+')
     table.remove(cmd, 1)
     local ft = vim.bo.filetype
