@@ -54,6 +54,8 @@ end}
 
 - `{{_upper_file_}}`     all-caps file name
 
+- `{{_lua:vim.fn.expand(%:.:r)_}}`     set by lua script
+
 ### Define your template
 
 You need config the `temp_dir` first like `temp.temp_dir = '~/.config/nvim/template` then create the
@@ -111,8 +113,9 @@ return {{_variable_}}
 
 ```
 
-use `Template test.lua var=template <TAB>` then it will auto fill template name `nvim_temp` if there 
-only has one lua template file.
+use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp` if there 
+only has one lua template file. if there has `_variable_` set then it will pop up an input
+then input your variable name.
 
 ```lua
 local api,fn = vim.api,vim.fn
@@ -124,31 +127,15 @@ return template
 
 ```
 
-- Work with exist file and custom variable
-
-use `Template var=template <TAB>`
-
 - Config a fancy keymap
 
-we can define a fancy keymap with the cmdline params like
 
 ```lua
 vim.keymap.set('n', '<Leader>t', function()
-  if vim.bo.filetype == 'lua' then
-    return ':Template var='
-  end
-
-  if vim.bo.filetype == 'rust' then
-    return '<cmd>Template main_owner<CR>'
-  end
+    return ':Template '
 end, { remap = true})
 ```
 
-this keymap will check the current filetype, if it's a lua filetype it will input the `Template var=`
-
-in cmdline then just fill the variable name and template name, if filetype it's rust then it will
-
-auto insert the content from `main_owner.rs` template.
 
 - Find all templates
 
