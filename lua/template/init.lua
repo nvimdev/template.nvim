@@ -41,6 +41,7 @@ local expr = {
   '{{_email_}}',
   '{{_variable_}}',
   '{{_upper_file_}}',
+  '{{_lua:(.*)_}}',
 }
 
 --@private
@@ -68,6 +69,9 @@ local expand_expr = {
   [expr[7]] = function(ctx)
     local file_name = string.upper(fn.expand('%:t:r'))
     return ctx.line:gsub(expr[7], file_name)
+  end,
+  [expr[8]] = function(ctx)
+    return load("return " .. ctx.line:match(expr[8]))()
   end,
 }
 

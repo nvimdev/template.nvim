@@ -54,6 +54,8 @@ end}
 
 - `{{_upper_file_}}`     all-caps file name
 
+- `{{_lua:vim.fn.expand(%:.:r)_}}`     set by lua script
+
 ### Define your template
 
 You need config the `temp_dir` first like `temp.temp_dir = '~/.config/nvim/template` then create the
