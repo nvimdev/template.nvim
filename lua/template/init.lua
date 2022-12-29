@@ -1,6 +1,7 @@
 local temp = {}
 local uv, api, fn, fs = vim.loop, vim.api, vim.fn, vim.fs
 local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
+local utils = require("template.utils")
 
 function temp.get_temp_list()
   temp.temp_dir = fs.normalize(temp.temp_dir)
@@ -63,7 +64,7 @@ local expand_expr = {
     return ctx.line:gsub(expr[5], temp.email)
   end,
   [expr[6]] = function(ctx)
-    return ctx.line:gsub(expr[6], ctx.var)
+    return ctx.var and ctx.line:gsub(expr[6], ctx.var) or utils.input("var: ")
   end,
   [expr[7]] = function(ctx)
     local file_name = string.upper(fn.expand('%:t:r'))
@@ -143,6 +144,9 @@ function temp:generate_template(args)
           if line:find(key) then
             ctx.line = line
             line = expand_expr[expr[idx]](ctx)
+            if not line then
+              return
+            end
 
             if idx == 2 then
               cursor_pos = { i, 2 }
