@@ -45,29 +45,30 @@ local expr = {
 
 --@private
 local expand_expr = {
-  [expr[1]] = function(ctx)
+  [expr[1]] = function(line)
     local date = os.date('%Y-%m-%d %H:%M:%S')
-    return ctx.line:gsub(expr[1], date)
+    return line:gsub(expr[1], date)
   end,
-  [expr[2]] = function(ctx)
-    return ctx.line:gsub(expr[2], '')
+  [expr[2]] = function(line)
+    return line:gsub(expr[2], '')
   end,
-  [expr[3]] = function(ctx)
+  [expr[3]] = function(line)
     local file_name = fn.expand('%:t:r')
-    return ctx.line:gsub(expr[3], file_name)
+    return line:gsub(expr[3], file_name)
   end,
-  [expr[4]] = function(ctx)
-    return ctx.line:gsub(expr[4], temp.author)
+  [expr[4]] = function(line)
+    return line:gsub(expr[4], temp.author)
   end,
-  [expr[5]] = function(ctx)
-    return ctx.line:gsub(expr[5], temp.email)
+  [expr[5]] = function(line)
+    return line:gsub(expr[5], temp.email)
   end,
-  [expr[6]] = function(ctx)
-    return ctx.line:gsub(expr[6], ctx.var)
+  [expr[6]] = function(line)
+    local var = vim.fn.input('Variable name: ', '')
+    return line:gsub(expr[6], var)
   end,
-  [expr[7]] = function(ctx)
+  [expr[7]] = function(line)
     local file_name = string.upper(fn.expand('%:t:r'))
-    return ctx.line:gsub(expr[7], file_name)
+    return line:gsub(expr[7], file_name)
   end,
 }
 
@@ -89,9 +90,6 @@ local function parse_args(args)
   local data = {}
 
   for _, v in pairs(args) do
-    if v:find('^var') then
-      data.var = vim.split(v, '=')[2]
-    end
     if v:find('%.%w+') then
       data.file = v
     end
@@ -131,8 +129,6 @@ function temp:generate_template(args)
 
   local lines = {}
 
-  local ctx = { var = data.var, line = '' }
-
   async_read(
     tpl,
     vim.schedule_wrap(function(data)
@@ -141,8 +137,7 @@ function temp:generate_template(args)
       for i, line in pairs(tbl) do
         for idx, key in pairs(expr) do
           if line:find(key) then
-            ctx.line = line
-            line = expand_expr[expr[idx]](ctx)
+            line = expand_expr[expr[idx]](line)
 
             if idx == 2 then
               cursor_pos = { i, 2 }
@@ -152,14 +147,13 @@ function temp:generate_template(args)
         table.insert(lines, line)
       end
 
-      if fn.line2byte('$') ~= -1 then
-        local content = api.nvim_buf_get_lines(current_buf, 0, -1, false)
-        for _, line in pairs(content) do
-          table.insert(lines, line)
-        end
+      local cur_line = api.nvim_win_get_cursor(0)[1]
+      local start = cur_line
+      if cur_line == 1 and #api.nvim_get_current_line() == 0 then
+        start = cur_line - 1
       end
-
-      api.nvim_buf_set_lines(current_buf, 0, -1, false, lines)
+      api.nvim_buf_set_lines(current_buf, start, cur_line, false, lines)
+      cursor_pos[1] = start ~=0 and cur_line + cursor_pos[1] or cursor_pos[1]
 
       if next(cursor_pos) ~= nil then
         api.nvim_win_set_cursor(0, cursor_pos)
