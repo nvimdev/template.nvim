@@ -71,8 +71,8 @@ local expand_expr = {
     local file_name = string.upper(fn.expand('%:t:r'))
     return line:gsub(expr[7], file_name)
   end,
-  [expr[8]] = function(ctx)
-    return load("return " .. ctx.line:match(expr[8]))()
+  [expr[8]] = function(line)
+    return line:match(expr[8]) and load('return ' .. line:match(expr[8]))() or line
   end,
 }
 
