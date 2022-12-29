@@ -75,6 +75,21 @@ func main() {
 
 ```
 
+You can use lua script to make template with {{_lua:<somecode>}}.
+For example
+```markdown
+---
+created: {{_lua:os.date("%y/%m/%d %H/%M")_}}
+---
+```
+above template generates bellow lines.
+```markdown
+---
+created: 2022/12/29 21:52
+---
+```
+
+
 - Work with exist file
 
 if there has a file `main.go`, and open it input `Template <Tab>` . select the template `main_owner`
