@@ -127,11 +127,11 @@ we can define a fancy keymap with the cmdline params like
 ```lua
 vim.keymap.set('n', '<Leader>t', function()
   if vim.bo.filetype == 'lua' then
-    return ':Telescope var='
+    return ':Template var='
   end
 
   if vim.bo.filetype == 'rust' then
-    return '<cmd>Telescope main_owner<CR>'
+    return '<cmd>Template main_owner<CR>'
   end
 end, { remap = true})
 ```
