@@ -1,3 +1,9 @@
+if vim.g.load_template then
+  return
+end
+
+vim.g.load_template = true
+
 local api = vim.api
 
 api.nvim_create_user_command('Template', function(args)
@@ -25,18 +31,12 @@ end, {
       return {}
     end
 
-    return vim.tbl_filter(function(s)
-      return string.match(s, '^' .. arg)
+    return vim.tbl_map(function(s)
+      local ext = vim.fn.expand('%:e')
+      if string.match(s, '^' .. arg) then
+        s = s:gsub('%.' .. ext, '')
+        return s
+      end
     end, list[ft])
-  end,
-})
-
-api.nvim_create_autocmd('LspAttach', {
-  group = api.nvim_create_augroup('Template', { clear = true }),
-  callback = function(opt)
-    local temp = require('template')
-    if temp.in_template(opt.buf) then
-      vim.diagnostic.disable(opt.buf)
-    end
   end,
 })

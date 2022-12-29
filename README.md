@@ -1,6 +1,6 @@
 ## Template.nvim
 
-Quickly insert templates into file.
+Async insert templates into file.
 
 <img
 src="https://user-images.githubusercontent.com/41671631/177514324-aad607cd-a25b-4c1e-ab81-13d780ec10f0.gif"
@@ -11,20 +11,28 @@ weight="50%"
 ## Install
 
 ```lua
--- with packer
+-- with lazy.nvim
 
-use {'glepnir/template.nvim'}
+{'glepnir/template.nvim', cmd = 'Template', config = function()
+    require('template').setup({
+        -- config in there
+    })
+end}
+
+-- lazy load you can use cmd or ft. if you are using cmd to lazyload when you edit the template file
+-- you may see some diagnostics in template file. use ft to lazy load the diagnostic not display
+-- when you edit the template file.
 
 ```
 
 ## Options
 
 ```lua
-local temp = require('template')
-
-temp.temp_dir -- template directory
-temp.author   -- your name
-temp.email    -- email address
+{
+    temp_dir -- template directory
+    author   -- your name
+    email    -- email address
+}
 
 ```
 
