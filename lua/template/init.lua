@@ -3,34 +3,16 @@ local uv, api, fn, fs = vim.loop, vim.api, vim.fn, vim.fs
 local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
 
 function temp.get_temp_list()
-  temp.temp_dir = fs.normalize(temp.temp_dir)
-  local all_temps = {}
-  local req = uv.fs_scandir(temp.temp_dir)
-  if not req then
-    vim.notify('[template.nvim] something wrong in get_temp_list callback')
-    return
-  end
-
-  local function iter()
-    return uv.fs_scandir_next(req)
-  end
-
-  for name, type in iter do
-    if type == 'file' then
-      table.insert(all_temps, name)
+  local temp_list = {}
+  local temp_abs_paths = vim.split(fn.globpath(temp.temp_dir, '/**/*.*'), '\n') or {}
+  for _, temp_abs_path in pairs(temp_abs_paths) do
+    local file_ext = temp_abs_path:match("[^.]+$")
+    if not temp_list[file_ext] then
+      temp_list[file_ext] = {}
     end
+    table.insert(temp_list[file_ext], temp_abs_path:match("[^/]+$"))
   end
-
-  local list = {}
-  for _, v in pairs(all_temps or {}) do
-    local ft = vim.filetype.match({ filename = v })
-    if ft then
-      list[ft] = {}
-      table.insert(list[ft], v)
-    end
-  end
-
-  return list
+  return temp_list
 end
 
 local expr = {

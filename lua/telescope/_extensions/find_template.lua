@@ -6,7 +6,13 @@ local conf = require('telescope.config').values
 
 local temp_list = function()
   local temp = require('template')
-  return vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
+  local file_ext = vim.fn.expand('%:e')
+  local temp_list = {}
+  local temp_abs_paths = vim.split(vim.fn.globpath(temp.temp_dir, '**/*.' .. file_ext), '\n') or {}
+  for _, temp_abs_path in pairs(temp_abs_paths) do
+    table.insert(temp_list, temp_abs_path:match('[^/]+$'))
+  end
+  return temp_list
 end
 
 local find_template = function(opts)
