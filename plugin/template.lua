@@ -14,7 +14,7 @@ end, {
     local temp = require('template')
     if not temp.temp_dir then
       vim.notify('[template.nvim] please config the temp_dir variable')
-      return
+      return {}
     end
 
     local cmd = vim.split(line, '%s+')

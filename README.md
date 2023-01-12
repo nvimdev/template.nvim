@@ -54,6 +54,8 @@ end}
 
 - `{{_upper_file_}}`     all-caps file name
 
+- `{{_lua:vim.fn.expand(%:.:r)_}}`     set by lua script
+
 ### Define your template
 
 You need config the `temp_dir` first like `temp.temp_dir = '~/.config/nvim/template` then create the
@@ -72,6 +74,21 @@ func main() {
 }
 
 ```
+
+You can use lua script to make template with {{_lua:<somecode>}}.
+For example
+```markdown
+---
+created: {{_lua:os.date("%y/%m/%d %H/%M")_}}
+---
+```
+above template generates bellow lines.
+```markdown
+---
+created: 2022/12/29 21:52
+---
+```
+
 
 - Work with exist file
 
