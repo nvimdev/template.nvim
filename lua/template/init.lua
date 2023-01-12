@@ -153,7 +153,7 @@ function temp:generate_template(args)
         start = cur_line - 1
       end
       api.nvim_buf_set_lines(current_buf, start, cur_line, false, lines)
-      cursor_pos[1] = start ~=0 and cur_line + cursor_pos[1] or cursor_pos[1]
+      cursor_pos[1] = start ~= 0 and cur_line + cursor_pos[1] or cursor_pos[1]
 
       if next(cursor_pos) ~= nil then
         api.nvim_win_set_cursor(0, cursor_pos)

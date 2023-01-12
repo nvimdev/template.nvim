@@ -11,6 +11,20 @@ end
 
 local find_template = function(opts)
   opts = opts or {}
+  if opts.name then
+    local dir = require('template').temp_dir
+    local path = vim.loop.os_uname().version:match('Windows') and '\\' or '/'
+    local file = dir .. path .. opts.name
+    if vim.fn.filereadable(file) == 0 then
+      local ok, fd = pcall(vim.loop.fs_open, file, 'w', 420)
+      if not ok then
+        vim.notify("Couldn't create file " .. file)
+        return
+      end
+      vim.loop.fs_close(fd)
+    end
+  end
+
   local results = temp_list()
 
   pickers
