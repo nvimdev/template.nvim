@@ -157,9 +157,17 @@ end, { remap = true})
 template.nvim use `telescope`. so you need register template telescope extension to `telescope`
 
 ```lua
-
 require("telescope").load_extension('find_template')
+```
 
+- Use Telescope to create template or insert template
+
+```lua
+-- This command will create a template file then show all templates
+Telescope find_template name=templatename
+
+-- when you select a template file it will insert this tempalte into current buffer
+Telecope find_template type=insert
 ```
 
 Then you can use `Telescope find_template` to check all templates
