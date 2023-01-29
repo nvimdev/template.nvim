@@ -17,31 +17,27 @@ end, {
       return {}
     end
 
-    local cmd = vim.split(line, '%s+')
-    table.remove(cmd, 1)
-    local ft = vim.bo.filetype
-    if ft == '' then
-      vim.notify('current buffer does not have filetype set')
-      return {}
-    end
-
-    if #cmd > 1 and cmd[1]:find('%.%w+$') then
-      ft = cmd[1]:match('[^.]+$')
-    end
-
     local list = temp.get_temp_list()
-
-    if not list then
-      vim.notify('get all templates list failed')
-      return {}
+    local function match_item(ft)
+      return vim.tbl_map(function(s)
+        if string.match(s, '^' .. arg) then
+          return s
+        end
+      end, list[ft])
     end
 
-    return vim.tbl_map(function(s)
-      local ext = vim.fn.expand('%:e')
-      if string.match(s, '^' .. arg) then
-        s = s:gsub('%.' .. ext, '')
-        return s
-      end
-    end, list[ft])
+    local ft = api.nvim_buf_get_option(0, 'filetype')
+    if list[ft] then
+      return match_item(ft)
+    end
+
+    local args = vim.split(line, '%s+', { trimempty = true })
+    if #args >= 2 and args[2]:find('%.%w+$') then
+      ft = vim.filetype.match({ filename = args[2] })
+    end
+
+    if ft then
+      return match_item(ft)
+    end
   end,
 })

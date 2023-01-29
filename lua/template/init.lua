@@ -26,7 +26,7 @@ function temp.get_temp_list()
     local ft = vim.filetype.match({ filename = v })
     if ft then
       list[ft] = {}
-      table.insert(list[ft], v)
+      table.insert(list[ft], fn.fnamemodify(v, ':r'))
     end
   end
 
