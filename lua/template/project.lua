@@ -21,7 +21,7 @@ local function path_join(...)
   return table.concat({ ... }, path_sep)
 end
 
-function pj:complete_project(arg)
+function pj:complete_project(langs)
   local function generation(cwd, tbl)
     if vim.tbl_islist(tbl) then
       for _, v in pairs(tbl) do
@@ -52,24 +52,14 @@ function pj:complete_project(arg)
   end
 
   local cur_dir = uv.cwd()
-  local lang
-  if arg:find('=') then
-    lang = vim.split(arg, '=', { trimempty = true })
-  else
-    lang = arg
-  end
   for _, items in pairs(self.conf) do
     for name, data in pairs(items) do
       if name == 'lang' then
-        if type(lang) == 'string' then
-          generation(cur_dir, items['lang'][lang])
-        elseif type(lang) == 'table' then
-          vim.tbl_map(function(k)
-            if items['lang'][k] then
-              generation(cur_dir, items['lang'][k])
-            end
-          end, lang)
-        end
+        vim.tbl_map(function(k)
+          if items['lang'][k] then
+            generation(cur_dir, items['lang'][k])
+          end
+        end, langs)
       else
         generation(cur_dir, data)
       end
@@ -80,7 +70,7 @@ end
 function pj:register_command(conf)
   self.conf = conf
   api.nvim_create_user_command('TemProject', function(args)
-    self:complete_project(args.args)
+    self:complete_project(args.fargs)
   end, {
     nargs = '+',
     complete = function()
