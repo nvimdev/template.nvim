@@ -209,6 +209,10 @@ function temp.setup(config)
     return
   end
 
+  if config.project then
+    require('template.project'):register_command(config.project)
+  end
+
   api.nvim_create_autocmd('FileType', {
     pattern = ft,
     group = api.nvim_create_augroup('Template', { clear = true }),
