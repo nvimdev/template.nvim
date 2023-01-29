@@ -1,0 +1,212 @@
+*template.nvim.txt*        For NVIM v0.8.0        Last change: 2023 January 13
+
+==============================================================================
+Table of Contents                            *template.nvim-table-of-contents*
+
+  - Template.nvim                                |template.nvim-template.nvim|
+  - Install                                            |template.nvim-install|
+  - Options                                            |template.nvim-options|
+  - Basic Usage                                    |template.nvim-basic-usage|
+  - Donate                                              |template.nvim-donate|
+  - Licenese MIT                                  |template.nvim-licenese-mit|
+
+TEMPLATE.NVIM                                    *template.nvim-template.nvim*
+
+Async insert templates into file.
+
+<img
+src="https://user-images.githubusercontent.com/41671631/177514324-aad607cd-a25b-4c1e-ab81-13d780ec10f0.gif"
+height="50%" weight="50%" />
+
+INSTALL                                                *template.nvim-install*
+
+>lua
+    -- with lazy.nvim
+    
+    {'glepnir/template.nvim', cmd = 'Template', config = function()
+        require('template').setup({
+            -- config in there
+        })
+    end}
+    
+    -- lazy load you can use cmd or ft. if you are using cmd to lazyload when you edit the template file
+    -- you may see some diagnostics in template file. use ft to lazy load the diagnostic not display
+    -- when you edit the template file.
+<
+
+
+OPTIONS                                                *template.nvim-options*
+
+>lua
+    {
+        temp_dir -- template directory
+        author   -- your name
+        email    -- email address
+    }
+<
+
+
+BASIC USAGE                                        *template.nvim-basic-usage*
+
+TEMPLATE GRAMMAR ~
+
+
+- `{{_date_}}` insert current date
+- `{{_cursor_}}` set cursor here
+- `{{_file_name_}}` current file name
+- `{{_author_}}` author info
+- `{{_email_}}` email adrress
+- `{{_variable_}}` variable name
+- `{{_upper_file_}}` all-caps file name
+- `{{_lua:vim.fn.expand(%:.:r)_}}` set by lua script
+
+
+DEFINE YOUR TEMPLATE ~
+
+You need config the `temp_dir` first like `temp.temp_dir =
+'~/.config/nvim/template` then create the
+
+a template named `main_owner.go` for go language in the `temp_dir`
+
+>go
+    // Copyright {{_date_}} {{_author_}}. All rights reserved.
+    // Use of this source code is governed by a BSD-style
+    // license that can be found in the LICENSE file.
+    
+    package {{_file_name_}}
+    
+    func main() {
+     {{_cursor_}}
+    }
+<
+
+
+You can use lua script to make template with {{_lua:<somecode>}}. For example
+
+>markdown
+    ---
+    created: {{_lua:os.date("%y/%m/%d %H/%M")_}}
+    ---
+<
+
+
+above template generates bellow lines.
+
+>markdown
+    ---
+    created: 2022/12/29 21:52
+    ---
+<
+
+
+
+- Work with exist file
+
+
+if there has a file `main.go`, and open it input `Template <Tab>`. select the
+template `main_owner`
+
+It will insert template to this file like
+
+>go
+    // Copyright 2022-07-05 21:05:36 glephunter. All rights reserved.
+    // Use of this source code is governed by a BSD-style
+    // license that can be found in the LICENSE file.
+    
+    package main
+    
+    func main() {
+     | -- cursor in there
+    }
+<
+
+
+
+- Work with not exist file
+
+
+use `Template test.go <TAB>`, it will create a file named `test.go` in current
+path and auto open this file insert template.
+
+
+- Work with not exist file and custom variable
+
+
+a lua template file named `nvim_temp.lua`, content is
+
+>lua
+    local api,fn = vim.api,vim.fn
+    local {{_variable_}}
+    
+    {{_cursor_}}
+    
+    return {{_variable_}}
+<
+
+
+use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp`
+if there only has one lua template file. if there has `_variable_` set then it
+will pop up an input then input your variable name.
+
+>lua
+    local api,fn = vim.api,vim.fn
+    local template
+    
+    | -- cursor here
+    
+    return template
+<
+
+
+
+- Config a fancy keymap
+
+
+>lua
+    vim.keymap.set('n', '<Leader>t', function()
+        return ':Template '
+    end, { remap = true})
+<
+
+
+
+- Find all templates
+
+
+template.nvim use `telescope`. so you need register template telescope
+extension to `telescope`
+
+>lua
+    require("telescope").load_extension('find_template')
+<
+
+
+
+- Use Telescope to create template or insert template
+
+
+>lua
+    -- This command will create a template file then show all templates
+    Telescope find_template name=templatename
+    
+    -- when you select a template file it will insert this tempalte into current buffer
+    Telecope find_template type=insert
+<
+
+
+Then you can use `Telescope find_template` to check all templates
+
+DONATE                                                  *template.nvim-donate*
+
+<img
+src='https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white'
+title=''/> <https://paypal.me/bobbyhub>
+
+If you’d like to support my work financially, buy me a drink through paypal
+<https://paypal.me/bobbyhub>
+
+LICENESE MIT                                      *template.nvim-licenese-mit*
+
+Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+
+vim:tw=78:ts=8:noet:ft=help:norl:
