@@ -72,7 +72,7 @@ local expand_expr = {
     return line:gsub(expr[7], file_name)
   end,
   [expr[8]] = function(line)
-    return line:match(expr[8]) and load('return ' .. line:match(expr[8]))() or line
+    return line:gsub(expr[8], load('return ' .. line:match(expr[8]))()) or line
   end,
 }
 
