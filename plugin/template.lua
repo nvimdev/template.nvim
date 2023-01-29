@@ -32,6 +32,10 @@ end, {
     end
 
     local args = vim.split(line, '%s+', { trimempty = true })
+    if #args == 1 and not list[ft] then
+      return
+    end
+
     if #args >= 2 and args[2]:find('%.%w+$') then
       ft = vim.filetype.match({ filename = args[2] })
     end
