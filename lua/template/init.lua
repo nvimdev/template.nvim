@@ -137,6 +137,7 @@ function temp:generate_template(args)
     tpl,
     vim.schedule_wrap(function(data)
       local cursor_pos = {}
+      data = data:gsub('\r\n?', '\n')
       local tbl = vim.split(data, '\n')
       for i, line in pairs(tbl) do
         for idx, key in pairs(expr) do
