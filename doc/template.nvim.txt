@@ -1,4 +1,4 @@
-*template.nvim.txt*        For NVIM v0.8.0        Last change: 2023 January 29
+*template.nvim.txt*        For NVIM v0.8.0        Last change: 2023 January 30
 
 ==============================================================================
 Table of Contents                            *template.nvim-table-of-contents*
@@ -23,7 +23,7 @@ INSTALL                                                *template.nvim-install*
 >lua
     -- with lazy.nvim
     
-    {'glepnir/template.nvim', cmd = 'Template', config = function()
+    {'glepnir/template.nvim', cmd = {'Template','TemProject'}, config = function()
         require('template').setup({
             -- config in there
         })
@@ -42,7 +42,68 @@ OPTIONS                                                *template.nvim-options*
         temp_dir -- template directory
         author   -- your name
         email    -- email address
+        project  -- template project generates
     }
+<
+
+
+TEMPLATE PROJECT EXAMPLE ~
+
+>lua
+    {
+       project = {
+          ['test'] = {
+             ['lang'] = {
+               ['cpp'] = {
+                 ['Tests'] = {
+                   'CMakeLists.txt',
+                 },
+               },
+             },
+          },
+          ['other'] =
+          {
+            ['default'] =
+            {
+              'README.md',
+              '.gitignore',
+            },
+            ['lang'] =
+            {
+                ['lua'] =
+                {
+                '.stylua.toml',
+                },
+                ['cpp'] =
+                {
+                  '.clang-format',
+                  'main.cpp',
+                  'CMakeLists.txt',
+                },
+                ['python'] =
+                {
+                'requirements.txt',
+                },
+            },
+          },
+        },
+    }
+<
+
+
+
+- `TemProject cpp` will generates project for you.
+
+
+>txt
+    .
+    ├── .clang-format
+    ├── .gitignore
+    ├── CMakeLists.txt
+    ├── README.md
+    ├── Tests
+    │   └── CMakeLists.txt
+    └── main.cpp
 <
 
 

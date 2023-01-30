@@ -13,7 +13,7 @@ weight="50%"
 ```lua
 -- with lazy.nvim
 
-{'glepnir/template.nvim', cmd = 'Template', config = function()
+{'glepnir/template.nvim', cmd = {'Template','TemProject'}, config = function()
     require('template').setup({
         -- config in there
     })
@@ -32,8 +32,64 @@ end}
     temp_dir -- template directory
     author   -- your name
     email    -- email address
+    project  -- template project generates
 }
 
+```
+
+### Template project example 
+```lua
+{
+   project = {
+      ['test'] = {
+         ['lang'] = {
+           ['cpp'] = {
+             ['Tests'] = {
+               'CMakeLists.txt',
+             },
+           },
+         },
+      },
+      ['other'] =
+      {
+        ['default'] =
+        {
+          'README.md',
+          '.gitignore',
+        },
+        ['lang'] =
+        {
+            ['lua'] =
+            {
+            '.stylua.toml',
+            },
+            ['cpp'] =
+            {
+              '.clang-format',
+              'main.cpp',
+              'CMakeLists.txt',
+            },
+            ['python'] =
+            {
+            'requirements.txt',
+            },
+        },
+      },
+    },
+}
+```
+
+- `TemProject cpp` will generates project for you.
+
+```txt
+.
+├── .clang-format
+├── .gitignore
+├── CMakeLists.txt
+├── README.md
+├── Tests
+│   └── CMakeLists.txt
+└── main.cpp
 ```
 
 ## Basic Usage
