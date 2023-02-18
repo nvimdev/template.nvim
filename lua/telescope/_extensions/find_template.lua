@@ -8,15 +8,22 @@ local action_state = require('telescope.actions.state')
 
 local temp_list = function()
   local temp = require('template')
-  return vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
+  local list = vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
+  local res = {}
+  for _, fname in pairs(list or {}) do
+    local ft = vim.filetype.match({ filename = fname })
+    if ft and ft == vim.bo.filetype then
+      res[#res + 1] = fname
+    end
+  end
+  return res
 end
 
 local find_template = function(opts)
-  local cur_buf = vim.api.nvim_get_current_buf()
   opts = opts or {}
   if opts.name then
     local dir = require('template').temp_dir
-    local path = vim.loop.os_uname().version:match('Windows') and '\\' or '/'
+    local path = vim.loop.os_uname().sysname == 'Windows_NT' and '\\' or '/'
     local file = dir .. path .. opts.name
     if vim.fn.filereadable(file) == 0 then
       local ok, fd = pcall(vim.loop.fs_open, file, 'w', 420)
@@ -46,19 +53,10 @@ local find_template = function(opts)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
-        local tmp_name = selection[1]
-        local lines = {}
-        local fd = io.open(tmp_name, 'r')
-        if not fd then
-          return
-        end
-        for line in fd:lines() do
-          table.insert(lines, line)
-        end
-        fd:close()
+        local tmp_name = vim.fn.fnamemodify(selection[1], ':t')
+        tmp_name = vim.split(tmp_name, '%.', { trimempty = true })[1]
 
-        local count = vim.api.nvim_buf_line_count(cur_buf)
-        vim.api.nvim_buf_set_lines(cur_buf, count, count, false, lines)
+        vim.cmd('Template ' .. tmp_name)
       end)
       return true
     end
