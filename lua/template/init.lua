@@ -106,10 +106,13 @@ end
 local function async_read(path, callback)
   uv.fs_open(path, 'r', 438, function(err, fd)
     assert(not err, err)
+    ---@diagnostic disable-next-line: redefined-local
     uv.fs_fstat(fd, function(err, stat)
       assert(not err, err)
+      ---@diagnostic disable-next-line: redefined-local
       uv.fs_read(fd, stat.size, 0, function(err, data)
         assert(not err, err)
+        ---@diagnostic disable-next-line: redefined-local
         uv.fs_close(fd, function(err)
           assert(not err, err)
           return callback(data)
@@ -135,6 +138,7 @@ function temp:generate_template(args)
 
   async_read(
     tpl,
+    ---@diagnostic disable-next-line: redefined-local
     vim.schedule_wrap(function(data)
       local cursor_pos = {}
       data = data:gsub('\r\n?', '\n')
@@ -178,7 +182,8 @@ function temp.in_template(buf)
     return false
   end
 
-  local tail = fn.expand('%:t')
+  local fname = api.nvim_buf_get_name(buf)
+  local tail = fn.fnamemodify(fname, ':t')
 
   if vim.tbl_contains(list[vim.bo[buf].filetype], tail) then
     return true
