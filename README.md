@@ -224,6 +224,9 @@ Telescope find_template name=templatename
 
 -- when you select a template file it will insert this tempalte into current buffer
 Telecope find_template type=insert
+
+-- in both cases you can disable filtering templates by file type by passing `filter_ft=false`
+Telecope find_template type=insert filter_ft=false
 ```
 
 Then you can use `Telescope find_template` to check all templates
