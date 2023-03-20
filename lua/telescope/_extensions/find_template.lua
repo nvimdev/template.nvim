@@ -6,13 +6,17 @@ local conf = require('telescope.config').values
 local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 
-local temp_list = function()
+local temp_list = function(opts)
   local temp = require('template')
   local list = vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
   local res = {}
   for _, fname in pairs(list or {}) do
-    local ft = vim.filetype.match({ filename = fname })
-    if ft and ft == vim.bo.filetype then
+    if opts.filter_ft then
+      local ft = vim.filetype.match({ filename = fname })
+      if ft and ft == vim.bo.filetype then
+        res[#res + 1] = fname
+      end
+    else
       res[#res + 1] = fname
     end
   end
@@ -35,7 +39,14 @@ local find_template = function(opts)
     end
   end
 
-  local results = temp_list()
+  -- by default is set for type=insert
+  -- unless is explicitly set by the filter_ft option which takes precedence
+  local filter_ft = (opts.type == 'insert')
+  if opts.filter_ft ~= nil then
+    filter_ft = opts.filter_ft
+  end
+
+  local results = temp_list({ filter_ft = filter_ft })
 
   local tbl = {
     prompt_title = 'find in templates',
