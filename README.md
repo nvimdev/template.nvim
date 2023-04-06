@@ -79,7 +79,7 @@ end}
 }
 ```
 
-- `TemProject cpp` will generates project for you.
+- `TemProject cpp` will generate project for you.
 
 ```txt
 .
@@ -114,9 +114,13 @@ end}
 
 ### Define your template
 
-You need config the `temp_dir` first like `temp.temp_dir = '~/.config/nvim/template` then create the
+You need to configure the setting variable `temp_dir`.
+An example configuration: `temp.temp_dir = '~/.config/nvim/template`.
+Create the directory at the location specified then proceed to add
+template files.
 
-a template named `main_owner.go` for go language in the `temp_dir`
+As an example create the file `main_owner.go` in the `temp_dir`
+directory you set (e.g. ~/.config/nvim/template/main_owner.go)
 
 ```go
 // Copyright {{_date_}} {{_author_}}. All rights reserved.
@@ -131,22 +135,21 @@ func main() {
 
 ```
 
-You can use lua script to make template with {{_lua:<somecode>}}.
+You can use lua inside the template with {{_lua:<somecode>}}.
 For example
 ```markdown
 ---
 created: {{_lua:os.date("%y/%m/%d %H/%M")_}}
 ---
 ```
-above template generates bellow lines.
+above template generates below lines.
 ```markdown
 ---
 created: 2022/12/29 21:52
 ---
 ```
 
-
-- Work with exist file
+- Work with existing file
 
 if there has a file `main.go`, and open it input `Template <Tab>` . select the template `main_owner`
 
@@ -172,7 +175,7 @@ this file insert template.
 
 - Work with not exist file and custom variable
 
-a lua template file named `nvim_temp.lua`, content is
+A lua template file named `nvim_temp.lua`, content is
 
 ```lua
 local api,fn = vim.api,vim.fn
@@ -184,9 +187,9 @@ return {{_variable_}}
 
 ```
 
-use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp` if there 
-only has one lua template file. if there has `_variable_` set then it will pop up an input
-then input your variable name.
+Use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp` if there 
+is only one lua template file. If are any `_variable_`  items in the template file it will
+prompt you for these values.
 
 ```lua
 local api,fn = vim.api,vim.fn
@@ -207,10 +210,9 @@ vim.keymap.set('n', '<Leader>t', function()
 end, { remap = true})
 ```
 
-
 - Find all templates
 
-template.nvim use `telescope`. so you need register template telescope extension to `telescope`
+template.nvim can use `telescope`, but you need register template telescope extension to `telescope`
 
 ```lua
 require("telescope").load_extension('find_template')
@@ -222,10 +224,10 @@ require("telescope").load_extension('find_template')
 -- This command will create a template file then show all templates
 Telescope find_template name=templatename
 
--- when you select a template file it will insert this tempalte into current buffer
+-- When you select a template file it will insert this tempalte into current buffer
 Telecope find_template type=insert
 
--- in both cases you can disable filtering templates by file type by passing `filter_ft=false`
+-- In both cases you can disable filtering templates by file type by passing `filter_ft=false`
 Telecope find_template type=insert filter_ft=false
 ```
 
