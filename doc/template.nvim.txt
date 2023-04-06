@@ -1,4 +1,4 @@
-*template.nvim.txt*         For NVIM v0.8.0         Last change: 2023 March 20
+*template.nvim.txt*         For NVIM v0.8.0         Last change: 2023 April 06
 
 ==============================================================================
 Table of Contents                            *template.nvim-table-of-contents*
@@ -90,7 +90,7 @@ TEMPLATE PROJECT EXAMPLE ~
 <
 
 
-- `TemProject cpp` will generates project for you.
+- `TemProject cpp` will generate project for you.
 
 >txt
     .
@@ -122,10 +122,12 @@ TEMPLATE GRAMMAR ~
 
 DEFINE YOUR TEMPLATE ~
 
-You need config the `temp_dir` first like `temp.temp_dir =
-'~/.config/nvim/template` then create the
+You need to configure the setting variable `temp_dir`. An example
+configuration: `temp.temp_dir = '~/.config/nvim/template`. Create the directory
+at the location specified then proceed to add template files.
 
-a template named `main_owner.go` for go language in the `temp_dir`
+As an example create the file `main_owner.go` in the `temp_dir` directory you
+set (e.g. ~/.config/nvim/template/main_owner.go)
 
 >go
     // Copyright {{_date_}} {{_author_}}. All rights reserved.
@@ -139,7 +141,7 @@ a template named `main_owner.go` for go language in the `temp_dir`
     }
 <
 
-You can use lua script to make template with {{_lua:}}. For example
+You can use lua inside the template with {{_lua:}}. For example
 
 >markdown
     ---
@@ -147,7 +149,7 @@ You can use lua script to make template with {{_lua:}}. For example
     ---
 <
 
-above template generates bellow lines.
+above template generates below lines.
 
 >markdown
     ---
@@ -156,7 +158,7 @@ above template generates bellow lines.
 <
 
 
-- Work with exist file
+- Work with existing file
 
 if there has a file `main.go`, and open it input `Template <Tab>`. select the
 template `main_owner`
@@ -184,7 +186,7 @@ path and auto open this file insert template.
 
 - Work with not exist file and custom variable
 
-a lua template file named `nvim_temp.lua`, content is
+A lua template file named `nvim_temp.lua`, content is
 
 >lua
     local api,fn = vim.api,vim.fn
@@ -195,9 +197,9 @@ a lua template file named `nvim_temp.lua`, content is
     return {{_variable_}}
 <
 
-use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp`
-if there only has one lua template file. if there has `_variable_` set then it
-will pop up an input then input your variable name.
+Use `Template test.lua <TAB>` then it will auto fill template name `nvim_temp`
+if there is only one lua template file. If are any `_variable_` items in the
+template file it will prompt you for these values.
 
 >lua
     local api,fn = vim.api,vim.fn
@@ -220,7 +222,7 @@ will pop up an input then input your variable name.
 
 - Find all templates
 
-template.nvim use `telescope`. so you need register template telescope
+template.nvim can use `telescope`, but you need register template telescope
 extension to `telescope`
 
 >lua
@@ -234,10 +236,10 @@ extension to `telescope`
     -- This command will create a template file then show all templates
     Telescope find_template name=templatename
     
-    -- when you select a template file it will insert this tempalte into current buffer
+    -- When you select a template file it will insert this tempalte into current buffer
     Telecope find_template type=insert
     
-    -- in both cases you can disable filtering templates by file type by passing `filter_ft=false`
+    -- In both cases you can disable filtering templates by file type by passing `filter_ft=false`
     Telecope find_template type=insert filter_ft=false
 <
 
