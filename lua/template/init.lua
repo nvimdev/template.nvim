@@ -2,7 +2,7 @@ local temp = {}
 local uv, api, fn, fs = vim.loop, vim.api, vim.fn, vim.fs
 local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
 
-function temp.get_temp_list(filetype)
+function temp.get_temp_list()
   temp.temp_dir = fs.normalize(temp.temp_dir)
   local all_temps = {}
   local req = uv.fs_scandir(temp.temp_dir)
@@ -17,16 +17,18 @@ function temp.get_temp_list(filetype)
 
   for name, type in iter do
     if type == 'file' then
-      table.insert(all_temps, name)
+      all_temps[#all_temps + 1] = name
     end
   end
 
   local list = {}
   for _, v in pairs(all_temps or {}) do
     local ft = vim.filetype.match({ filename = v })
-    if ft and (filetype and ft == filetype or true) then
-      list[ft] = {}
-      table.insert(list[ft], fn.fnamemodify(v, ':r'))
+    if ft then
+      if not list[ft] then
+        list[ft] = {}
+      end
+      list[ft][#list[ft] + 1] = fn.fnamemodify(v, ':r')
     end
   end
 
