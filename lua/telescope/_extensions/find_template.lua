@@ -8,17 +8,15 @@ local action_state = require('telescope.actions.state')
 
 local temp_list = function(opts)
   local temp = require('template')
-  local list = vim.split(vim.fn.globpath(temp.temp_dir, '*'), '\n')
+  local list = temp.get_temp_list()
+  local curbuf = vim.api.nvim_get_current_buf()
+  if opts.filter_ft then
+    return list[vim.bo[curbuf].filetype] or {}
+  end
+
   local res = {}
-  for _, fname in pairs(list or {}) do
-    if opts.filter_ft then
-      local ft = vim.filetype.match({ filename = fname })
-      if ft and ft == vim.bo.filetype then
-        res[#res + 1] = fname
-      end
-    else
-      res[#res + 1] = fname
-    end
+  for _, v in pairs(list) do
+    res = vim.list_extend(res, v)
   end
   return res
 end

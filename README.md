@@ -1,6 +1,6 @@
 ## Template.nvim
 
-Async insert templates into file.
+Quick insert tempalte
 
 <img
 src="https://user-images.githubusercontent.com/41671631/177514324-aad607cd-a25b-4c1e-ab81-13d780ec10f0.gif"
@@ -22,7 +22,6 @@ end}
 -- lazy load you can use cmd or ft. if you are using cmd to lazyload when you edit the template file
 -- you may see some diagnostics in template file. use ft to lazy load the diagnostic not display
 -- when you edit the template file.
-
 ```
 
 ## Options
@@ -32,64 +31,7 @@ end}
     temp_dir -- template directory
     author   -- your name
     email    -- email address
-    project  -- template project generates
 }
-
-```
-
-### Template project example 
-```lua
-{
-   project = {
-      ['test'] = {
-         ['lang'] = {
-           ['cpp'] = {
-             ['Tests'] = {
-               'CMakeLists.txt',
-             },
-           },
-         },
-      },
-      ['other'] =
-      {
-        ['default'] =
-        {
-          'README.md',
-          '.gitignore',
-        },
-        ['lang'] =
-        {
-            ['lua'] =
-            {
-            '.stylua.toml',
-            },
-            ['cpp'] =
-            {
-              '.clang-format',
-              'main.cpp',
-              'CMakeLists.txt',
-            },
-            ['python'] =
-            {
-            'requirements.txt',
-            },
-        },
-      },
-    },
-}
-```
-
-- `TemProject cpp` will generate project for you.
-
-```txt
-.
-├── .clang-format
-├── .gitignore
-├── CMakeLists.txt
-├── README.md
-├── Tests
-│   └── CMakeLists.txt
-└── main.cpp
 ```
 
 ## Basic Usage
@@ -121,6 +63,8 @@ template files.
 
 As an example create the file `main_owner.go` in the `temp_dir`
 directory you set (e.g. ~/.config/nvim/template/main_owner.go)
+
+Nested folders are also supported (e.g. ~/.config/nvim/template/rust/http.rs)
 
 ```go
 // Copyright {{_date_}} {{_author_}}. All rights reserved.

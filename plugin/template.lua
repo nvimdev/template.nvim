@@ -18,11 +18,14 @@ end, {
     end
 
     local list = temp.get_temp_list()
+
     local function match_item(ft)
       return vim.tbl_map(function(s)
-        if string.match(s, '^' .. arg) then
+        s = vim.fn.fnamemodify(s, ':t:r')
+        if arg and string.match(s, '^' .. arg) then
           return s
         end
+        return s
       end, list[ft])
     end
 

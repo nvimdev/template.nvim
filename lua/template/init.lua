@@ -4,35 +4,24 @@ local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
 
 function temp.get_temp_list()
   temp.temp_dir = fs.normalize(temp.temp_dir)
-  local all_temps = {}
-  local req = uv.fs_scandir(temp.temp_dir)
-  if not req then
-    vim.notify('[template.nvim] something wrong in get_temp_list callback')
-    return
-  end
+  local res = {}
 
-  local function iter()
-    return uv.fs_scandir_next(req)
-  end
-
-  for name, type in iter do
-    if type == 'file' then
-      all_temps[#all_temps + 1] = name
-    end
-  end
-
-  local list = {}
-  for _, v in pairs(all_temps or {}) do
-    local ft = vim.filetype.match({ filename = v })
+  local result = vim.fs.find(function(name)
+    return name:match('.*')
+  end, { type = 'file', path = temp.temp_dir, limit = math.huge })
+  for _, name in ipairs(result) do
+    local ft = vim.filetype.match({ filename = name })
     if ft then
-      if not list[ft] then
-        list[ft] = {}
+      if not res[ft] then
+        res[ft] = {}
       end
-      list[ft][#list[ft] + 1] = fn.fnamemodify(v, ':r')
+      res[ft][#res[ft] + 1] = name
+    else
+      vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
     end
   end
 
-  return list
+  return res
 end
 
 local expr = {
@@ -176,18 +165,12 @@ end
 
 function temp.in_template(buf)
   local list = temp.get_temp_list()
-  if not list then
+  if vim.tbl_isempty(list) or not list[vim.bo[buf].filetype] then
     return false
   end
+  local bufname = api.nvim_buf_get_name(buf)
 
-  if not list[vim.bo[buf].filetype] then
-    return false
-  end
-
-  local fname = api.nvim_buf_get_name(buf)
-  local tail = fn.fnamemodify(fname, ':t')
-
-  if vim.tbl_contains(list[vim.bo[buf].filetype], tail) then
+  if vim.tbl_contains(list[vim.bo[buf].filetype], bufname) then
     return true
   end
 
@@ -209,20 +192,16 @@ function temp.setup(config)
   temp.author = config.author and config.author or ''
   temp.email = config.email and config.email or ''
 
-  local ft = vim.tbl_keys(temp.get_temp_list() or {})
+  local fts = vim.tbl_keys(temp.get_temp_list())
 
-  if #ft == 0 then
+  if #fts == 0 then
     vim.notify('[template.nvim] does not get the filetype in template dir')
     return
   end
 
-  if config.project then
-    require('template.project'):register_command(config.project)
-  end
-
   api.nvim_create_autocmd('FileType', {
-    pattern = ft,
-    group = api.nvim_create_augroup('Template', { clear = true }),
+    pattern = fts,
+    group = api.nvim_create_augroup('Template', { clear = false }),
     callback = function(opt)
       if temp.in_template(opt.buf) then
         vim.diagnostic.disable(opt.buf)
