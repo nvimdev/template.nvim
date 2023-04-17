@@ -113,6 +113,20 @@ local function async_read(path, callback)
   end)
 end
 
+local function get_tpl(buf, name)
+  local list = temp.get_temp_list()
+  if not list[vim.bo[buf].filetype] then
+    return
+  end
+
+  local ext = fn.expand('%:e')
+  for _, v in ipairs(list[vim.bo[buf].filetype]) do
+    if v:find(name) then
+      return v
+    end
+  end
+end
+
 function temp:generate_template(args)
   local data = parse_args(args)
 
@@ -122,8 +136,10 @@ function temp:generate_template(args)
 
   local current_buf = api.nvim_get_current_buf()
 
-  local ext = fn.expand('%:e')
-  local tpl = fs.normalize(temp.temp_dir) .. sep .. data.tp_name .. '.' .. ext
+  local tpl = get_tpl(current_buf, data.tp_name)
+  if not tpl then
+    return
+  end
 
   local lines = {}
 
