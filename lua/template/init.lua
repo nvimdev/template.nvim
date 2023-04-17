@@ -17,7 +17,10 @@ function temp.get_temp_list()
       end
       res[ft][#res[ft] + 1] = name
     else
-      vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
+      vim.notify(
+        '[Template.nvim] Could not find the filetype of template file ' .. name,
+        vim.log.levels.INFO
+      )
     end
   end
 
