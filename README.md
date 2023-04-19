@@ -145,6 +145,15 @@ return template
 
 ```
 
+- Use tpl file
+
+Also you can use `*.tpl` as a template this extension can avoid trigger FileType event .like start a
+lsp server by Filetype event.
+
+a rule of `tpl` template is you must set `;; filetype` in first line like a rust template file
+`http.tpl` and first line must be `;; rust` 
+
+
 - Config a fancy keymap
 
 

@@ -9,18 +9,21 @@ function temp.get_temp_list()
   local result = vim.fs.find(function(name)
     return name:match('.*')
   end, { type = 'file', path = temp.temp_dir, limit = math.huge })
+
   for _, name in ipairs(result) do
     local ft = vim.filetype.match({ filename = name })
+    if ft == 'smarty' then
+      local first_row = vim.fn.readfile(name, '', 1)[1]
+      ft = vim.split(first_row, '%s')[2]
+    end
+
     if ft then
       if not res[ft] then
         res[ft] = {}
       end
       res[ft][#res[ft] + 1] = name
     else
-      vim.notify(
-        '[Template.nvim] Could not find the filetype of template file ' .. name,
-        vim.log.levels.INFO
-      )
+      vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
     end
   end
 
@@ -122,7 +125,6 @@ local function get_tpl(buf, name)
     return
   end
 
-  local ext = fn.expand('%:e')
   for _, v in ipairs(list[vim.bo[buf].filetype]) do
     if v:find(name) then
       return v
@@ -218,10 +220,19 @@ function temp.setup(config)
     return
   end
 
-  api.nvim_create_autocmd('FileType', {
-    pattern = fts,
+  api.nvim_create_autocmd({ 'BufEnter', 'BufNewFile' }, {
+    pattern = temp.temp_dir .. '/*',
     group = api.nvim_create_augroup('Template', { clear = false }),
     callback = function(opt)
+      if vim.bo[opt.buf].filetype == 'smarty' then
+        local fname = api.nvim_buf_get_name(opt.buf)
+        local row = vim.fn.readfile(fname, '', 1)[1]
+        local lang = vim.split(row, '%s')[2]
+        vim.treesitter.start(opt.buf, lang)
+        api.nvim_buf_add_highlight(opt.buf, 0, 'Comment', 0, 0, -1)
+        return
+      end
+
       if temp.in_template(opt.buf) then
         vim.diagnostic.disable(opt.buf)
       end
