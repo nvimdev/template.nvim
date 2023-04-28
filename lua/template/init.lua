@@ -45,7 +45,7 @@ local function expand_expr()
     '{{_email_}}',
     '{{_variable_}}',
     '{{_upper_file_}}',
-    '{{_lua:(.*)_}}',
+    '{{_lua:(.-)_}}',
     '{{_tomorrow_}}',
   }
 
