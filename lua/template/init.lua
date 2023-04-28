@@ -10,6 +10,12 @@ function temp.get_temp_list()
     return name:match('.*')
   end, { type = 'file', path = temp.temp_dir, limit = math.huge })
 
+  local link = vim.fs.find(function(name)
+    return name:match('.*')
+  end, { type = 'link', path = temp.temp_dir, limit = math.huge })
+
+  result = vim.list_extend(result, link)
+
   for _, name in ipairs(result) do
     local ft = vim.filetype.match({ filename = name })
     if ft == 'smarty' then
