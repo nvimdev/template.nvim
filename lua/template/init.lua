@@ -86,7 +86,6 @@ local function expand_expr()
     line = vim.deepcopy(line)
 
     while true do
-      print(line)
       for i, item in ipairs(expr) do
         if line:find(item) then
           target = item
