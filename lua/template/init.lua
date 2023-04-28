@@ -30,55 +30,83 @@ function temp.get_temp_list()
   return res
 end
 
-local expr = {
-  '{{_date_}}',
-  '{{_cursor_}}',
-  '{{_file_name_}}',
-  '{{_author_}}',
-  '{{_email_}}',
-  '{{_variable_}}',
-  '{{_upper_file_}}',
-  '{{_lua:(.*)_}}',
-  '{{_tomorrow_}}'
-}
+local function expand_expr()
+  local expr = {
+    '{{_date_}}',
+    '{{_cursor_}}',
+    '{{_file_name_}}',
+    '{{_author_}}',
+    '{{_email_}}',
+    '{{_variable_}}',
+    '{{_upper_file_}}',
+    '{{_lua:(.*)_}}',
+    '{{_tomorrow_}}',
+  }
 
---@private
-local expand_expr = {
-  [expr[1]] = function(line)
-    local date = os.date('%Y-%m-%d %H:%M:%S')
-    return line:gsub(expr[1], date)
-  end,
-  [expr[2]] = function(line)
-    return line:gsub(expr[2], '')
-  end,
-  [expr[3]] = function(line)
-    local file_name = fn.expand('%:t:r')
-    return line:gsub(expr[3], file_name)
-  end,
-  [expr[4]] = function(line)
-    return line:gsub(expr[4], temp.author)
-  end,
-  [expr[5]] = function(line)
-    return line:gsub(expr[5], temp.email)
-  end,
-  [expr[6]] = function(line)
-    local var = vim.fn.input('Variable name: ', '')
-    return line:gsub(expr[6], var)
-  end,
-  [expr[7]] = function(line)
-    local file_name = string.upper(fn.expand('%:t:r'))
-    return line:gsub(expr[7], file_name)
-  end,
-  [expr[8]] = function(line)
-    return line:gsub(expr[8], load('return ' .. line:match(expr[8]))()) or line
-  end,
-  [expr[9]] = function(line)
-    local t = os.date('*t')
-    t.day = t.day + 1
-    local next = os.date('%c', os.time(t))
-    return line:gsub(expr[9], next)
+  local expr_map = {
+    [expr[1]] = function(line)
+      local date = os.date('%Y-%m-%d %H:%M:%S')
+      return line:gsub(expr[1], date)
+    end,
+    [expr[2]] = function(line)
+      return line:gsub(expr[2], '')
+    end,
+    [expr[3]] = function(line)
+      local file_name = fn.expand('%:t:r')
+      return line:gsub(expr[3], file_name)
+    end,
+    [expr[4]] = function(line)
+      return line:gsub(expr[4], temp.author)
+    end,
+    [expr[5]] = function(line)
+      return line:gsub(expr[5], temp.email)
+    end,
+    [expr[6]] = function(line)
+      local var = vim.fn.input('Variable name: ', '')
+      return line:gsub(expr[6], var)
+    end,
+    [expr[7]] = function(line)
+      local file_name = string.upper(fn.expand('%:t:r'))
+      return line:gsub(expr[7], file_name)
+    end,
+    [expr[8]] = function(line)
+      return line:gsub(expr[8], load('return ' .. line:match(expr[8]))()) or line
+    end,
+    [expr[9]] = function(line)
+      local t = os.date('*t')
+      t.day = t.day + 1
+      ---@diagnostic disable-next-line: param-type-mismatch
+      local next = os.date('%c', os.time(t))
+      return line:gsub(expr[9], next)
+    end,
+  }
+
+  return function(line)
+    local target, cursor
+    line = vim.deepcopy(line)
+
+    while true do
+      print(line)
+      for i, item in ipairs(expr) do
+        if line:find(item) then
+          target = item
+          if i == 2 then
+            cursor = true
+          end
+          break
+        end
+      end
+
+      if not target then
+        break
+      end
+
+      line = expr_map[target](line)
+      target = nil
+    end
+    return line, cursor
   end
-}
+end
 
 --@private
 local function create_and_load(file)
@@ -162,17 +190,15 @@ function temp:generate_template(args)
       local cursor_pos = {}
       data = data:gsub('\r\n?', '\n')
       local tbl = vim.split(data, '\n')
-      for i, line in pairs(tbl) do
-        for idx, key in pairs(expr) do
-          if line:find(key) then
-            line = expand_expr[expr[idx]](line)
 
-            if idx == 2 then
-              cursor_pos = { i, 2 }
-            end
-          end
+      local _expand = expand_expr()
+
+      for i, v in ipairs(tbl) do
+        local line, cursor = _expand(v)
+        lines[#lines + 1] = line
+        if cursor then
+          cursor_pos = { i, 2 }
         end
-        table.insert(lines, line)
       end
 
       local cur_line = api.nvim_win_get_cursor(0)[1]
