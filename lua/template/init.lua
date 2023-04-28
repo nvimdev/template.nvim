@@ -39,6 +39,7 @@ local expr = {
   '{{_variable_}}',
   '{{_upper_file_}}',
   '{{_lua:(.*)_}}',
+  '{{_tomorrow_}}'
 }
 
 --@private
@@ -71,6 +72,12 @@ local expand_expr = {
   [expr[8]] = function(line)
     return line:gsub(expr[8], load('return ' .. line:match(expr[8]))()) or line
   end,
+  [expr[9]] = function(line)
+    local t = os.date('*t')
+    t.day = t.day + 1
+    local next = os.date('%c', os.time(t))
+    return line:gsub(expr[9], next)
+  end
 }
 
 --@private
