@@ -45,70 +45,74 @@ local function expand_expr()
     '{{_email_}}',
     '{{_variable_}}',
     '{{_upper_file_}}',
-    '{{_lua:(.*)_}}',
+    '{{_lua:(.-)_}}',
     '{{_tomorrow_}}',
   }
+
+  local function expand_recursively(line, expr, replacement)
+    while line:match(expr) do
+      line = line:gsub(expr, replacement, 1)
+    end
+    return line
+  end
 
   local expr_map = {
     [expr[1]] = function(line)
       local date = os.date('%Y-%m-%d %H:%M:%S')
-      return line:gsub(expr[1], date)
+      return expand_recursively(line, expr[1], date)
     end,
     [expr[2]] = function(line)
-      return line:gsub(expr[2], '')
+      return expand_recursively(line, expr[2], '')
     end,
     [expr[3]] = function(line)
       local file_name = fn.expand('%:t:r')
-      return line:gsub(expr[3], file_name)
+      return expand_recursively(line, expr[3], file_name)
     end,
     [expr[4]] = function(line)
-      return line:gsub(expr[4], temp.author)
+      return expand_recursively(line, expr[4], temp.author)
     end,
     [expr[5]] = function(line)
-      return line:gsub(expr[5], temp.email)
+      return expand_recursively(line, expr[5], temp.email)
     end,
     [expr[6]] = function(line)
+      if not line:match(expr[6]) then
+        return line
+      end
       local var = vim.fn.input('Variable name: ', '')
-      return line:gsub(expr[6], var)
+      return expand_recursively(line, expr[6], var)
     end,
     [expr[7]] = function(line)
       local file_name = string.upper(fn.expand('%:t:r'))
-      return line:gsub(expr[7], file_name)
+      return expand_recursively(line, expr[7], file_name)
     end,
     [expr[8]] = function(line)
-      return line:gsub(expr[8], load('return ' .. line:match(expr[8]))()) or line
+      while line:match(expr[8]) do
+        line = line:gsub(expr[8], load('return ' .. line:match(expr[8]))(), 1)
+        print(line)
+      end
+      return line
     end,
     [expr[9]] = function(line)
       local t = os.date('*t')
       t.day = t.day + 1
       ---@diagnostic disable-next-line: param-type-mismatch
       local next = os.date('%c', os.time(t))
-      return line:gsub(expr[9], next)
+      return expand_recursively(line, expr[9], next)
     end,
   }
 
   return function(line)
-    local target, cursor
+    local cursor
     line = vim.deepcopy(line)
 
-    while true do
-      for i, item in ipairs(expr) do
-        if line:find(item) then
-          target = item
-          if i == 2 then
-            cursor = true
-          end
-          break
-        end
-      end
+    for i, item in ipairs(expr) do
+      line = expr_map[item](line)
 
-      if not target then
-        break
+      if i == 2 then
+        cursor = true
       end
-
-      line = expr_map[target](line)
-      target = nil
     end
+
     return line, cursor
   end
 end
