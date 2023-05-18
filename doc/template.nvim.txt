@@ -1,4 +1,4 @@
-*template.nvim.txt*         For NVIM v0.8.0         Last change: 2023 April 28
+*template.nvim.txt*          For NVIM v0.8.0          Last change: 2023 May 18
 
 ==============================================================================
 Table of Contents                            *template.nvim-table-of-contents*
@@ -50,7 +50,6 @@ BASIC USAGE                                        *template.nvim-basic-usage*
 
 TEMPLATE GRAMMAR ~
 
-
 - `{{_date_}}` insert current date
 - `{{_cursor_}}` set cursor here
 - `{{_file_name_}}` current file name
@@ -100,7 +99,6 @@ above template generates below lines.
     ---
 <
 
-
 - Work with existing file
 
 if there has a file `main.go`, and open it input `Template <Tab>`. select the
@@ -120,12 +118,10 @@ It will insert template to this file like
     }
 <
 
-
 - Work with not exist file
 
 use `Template test.go <TAB>`, it will create a file named `test.go` in current
 path and auto open this file insert template.
-
 
 - Work with not exist file and custom variable
 
@@ -153,7 +149,6 @@ template file it will prompt you for these values.
     return template
 <
 
-
 - Use tpl file
 
 Also you can use `*.tpl` as a template this extension can avoid trigger
@@ -161,7 +156,6 @@ FileType event .like start a lsp server by Filetype event.
 
 a rule of `tpl` template is you must set `;; filetype` in first line like a
 rust template file `http.tpl` and first line must be `;; rust`
-
 
 - Config a fancy keymap
 
@@ -171,7 +165,6 @@ rust template file `http.tpl` and first line must be `;; rust`
     end, { remap = true})
 <
 
-
 - Find all templates
 
 template.nvim can use `telescope`, but you need register template telescope
@@ -180,7 +173,6 @@ extension to `telescope`
 >lua
     require("telescope").load_extension('find_template')
 <
-
 
 - Use Telescope to create template or insert template
 
