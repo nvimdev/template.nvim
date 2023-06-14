@@ -105,12 +105,12 @@ local function expand_expr()
     local cursor
     line = vim.deepcopy(line)
 
+    if line:find(expr[2]) then
+      cursor = true
+    end
+    
     for i, item in ipairs(expr) do
       line = expr_map[item](line)
-
-      if i == 2 then
-        cursor = true
-      end
     end
 
     return line, cursor
