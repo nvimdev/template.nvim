@@ -1,4 +1,4 @@
-*template.nvim.txt*          For NVIM v0.8.0         Last change: 2023 June 14
+*template.nvim.txt*          For NVIM v0.8.0         Last change: 2023 July 17
 
 ==============================================================================
 Table of Contents                            *template.nvim-table-of-contents*
@@ -161,7 +161,7 @@ rust template file `http.tpl` and first line must be `;; rust`
 
 >lua
     vim.keymap.set('n', '<Leader>t', function()
-        return ':Template '
+        vim.fn.feedkeys(':Template ')
     end, { remap = true})
 <
 
