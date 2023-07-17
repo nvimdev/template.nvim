@@ -159,7 +159,7 @@ a rule of `tpl` template is you must set `;; filetype` in first line like a rust
 
 ```lua
 vim.keymap.set('n', '<Leader>t', function()
-    return ':Template '
+    vim.fn.feedkeys(':Template ')
 end, { remap = true})
 ```
 
