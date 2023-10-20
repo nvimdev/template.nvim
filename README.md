@@ -57,7 +57,7 @@ end}
 ### Define your template
 
 You need to configure the setting variable `temp_dir`.
-An example configuration: `temp.temp_dir = '~/.config/nvim/template`.
+An example configuration: `temp_dir = '~/.config/nvim/template'`.
 Create the directory at the location specified then proceed to add
 template files.
 
