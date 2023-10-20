@@ -57,14 +57,14 @@ end}
 ### Define your template
 
 You need to configure the setting variable `temp_dir`.
-An example configuration: `temp_dir = '~/.config/nvim/template'`.
+An example configuration: `temp_dir = '~/.config/nvim/templates'`.
 Create the directory at the location specified then proceed to add
 template files.
 
 As an example create the file `main_owner.go` in the `temp_dir`
-directory you set (e.g. ~/.config/nvim/template/main_owner.go)
+directory you set (e.g. ~/.config/nvim/templates/main_owner.go)
 
-Nested folders are also supported (e.g. ~/.config/nvim/template/rust/http.rs)
+Nested folders are also supported (e.g. ~/.config/nvim/templates/rust/http.rs)
 
 ```go
 // Copyright {{_date_}} {{_author_}}. All rights reserved.
