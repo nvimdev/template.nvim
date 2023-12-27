@@ -201,13 +201,22 @@ function temp:generate_template(args)
       local tbl = vim.split(data, '\n')
 
       local _expand = expand_expr()
+      local skip_lines = 0
 
       for i, v in ipairs(tbl) do
+        if i == 1 then
+          local line_data = vim.split(v, '%s')
+          if #line_data == 2 and ";;" == line_data[1] then
+            skip_lines = skip_lines + 1
+            goto continue
+          end
+        end
         local line, cursor = _expand(v)
         lines[#lines + 1] = line
         if cursor then
-          cursor_pos = { i, 2 }
+          cursor_pos = { i - skip_lines, 2 }
         end
+        ::continue::
       end
 
       local cur_line = api.nvim_win_get_cursor(0)[1]
