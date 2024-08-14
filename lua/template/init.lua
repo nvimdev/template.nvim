@@ -88,7 +88,6 @@ local function expand_expr()
     [expr[8]] = function(line)
       while line:match(expr[8]) do
         line = line:gsub(expr[8], load('return ' .. line:match(expr[8]))(), 1)
-        print(line)
       end
       return line
     end,
