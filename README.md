@@ -52,6 +52,8 @@ end}
 
 - `{{_upper_file_}}`     all-caps file name
 
+- `{{_camel_case_file_}}`     converts snake_case file name to CamelCase
+
 - `{{_lua:vim.fn.expand(%:.:r)_}}`     set by lua script
 
 ### Define your template
