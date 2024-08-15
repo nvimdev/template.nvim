@@ -1,4 +1,4 @@
-*template.nvim.txt*        For NVIM v0.8.0       Last change: 2024 February 07
+*template.nvim.txt*         For NVIM v0.8.0        Last change: 2024 August 15
 
 ==============================================================================
 Table of Contents                            *template.nvim-table-of-contents*
@@ -9,6 +9,7 @@ Table of Contents                            *template.nvim-table-of-contents*
   - Basic Usage                                    |template.nvim-basic-usage|
   - Donate                                              |template.nvim-donate|
   - Licenese MIT                                  |template.nvim-licenese-mit|
+1. Links                                                 |template.nvim-links|
 
 TEMPLATE.NVIM                                    *template.nvim-template.nvim*
 
@@ -57,6 +58,7 @@ TEMPLATE GRAMMAR ~
 - `{{_email_}}` email adrress
 - `{{_variable_}}` variable name
 - `{{_upper_file_}}` all-caps file name
+- `{{_camel_case_file_}}` converts snake_case file name to CamelCase
 - `{{_lua:vim.fn.expand(%:.:r)_}}` set by lua script
 
 
