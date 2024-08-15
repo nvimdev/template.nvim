@@ -47,6 +47,7 @@ local function expand_expr()
     '{{_upper_file_}}',
     '{{_lua:(.-)_}}',
     '{{_tomorrow_}}',
+    '{{_cammel_file_}}',
   }
 
   local function expand_recursively(line, expr, replacement)
@@ -98,6 +99,23 @@ local function expand_expr()
       local next = os.date('%c', os.time(t))
       return expand_recursively(line, expr[9], next)
     end,
+    [expr[10]] = function(line)
+      local file_name = fn.expand('%:t:r')
+      local camel_case_file_name = ''
+      local up_next = true
+      for i = 1, #file_name do
+        local char = file_name:sub(i,i)
+        if char == '_' then
+          up_next = true
+        elseif up_next then
+          camel_case_file_name = camel_case_file_name..string.upper(char)
+          up_next = false
+        else
+          camel_case_file_name = camel_case_file_name..char
+        end
+      end
+      return expand_recursively(line, expr[10], camel_case_file_name)
+    end,
   }
 
   return function(line)
@@ -107,7 +125,7 @@ local function expand_expr()
     if line:find(expr[2]) then
       cursor = true
     end
-    
+
     for i, item in ipairs(expr) do
       line = expr_map[item](line)
     end
