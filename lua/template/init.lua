@@ -2,6 +2,72 @@ local temp = {}
 local uv, api, fn, fs = vim.loop, vim.api, vim.fn, vim.fs
 local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
 
+local cursor_pattern = '{{_cursor_}}'
+local renderer = {
+  expressions = {},
+  expression_replacer_map = {}
+}
+
+---@param expr string
+---@param replacer function(match: string): string
+renderer.register = function (expr, replacer)
+  if renderer.expression_replacer_map[expr] then
+    vim.notify('The expression '..expr..' is registered already. Will not add the replacer.', vim.log.levels.ERROR)
+    return
+  end
+  table.insert(renderer.expressions, expr)
+  renderer.expression_replacer_map[expr] = replacer
+end
+
+renderer.register_builtins = function()
+  renderer.register('{{_date_}}', function(_) return os.date('%Y-%m-%d %H:%M:%S') end)
+  renderer.register(cursor_pattern, function(_) return '' end)
+  renderer.register('{{_file_name_}}', function(_) return fn.expand('%:t:r') end)
+  renderer.register('{{_author_}}', function(_) return temp.author end)
+  renderer.register('{{_email_}}', function(_) return temp.email end)
+  renderer.register('{{_variable_}}', function(_) return vim.fn.input('Variable name: ', '') end)
+  renderer.register('{{_upper_file_}}', function(_) return string.upper(fn.expand('%:t:r')) end)
+  renderer.register('{{_lua:(.-)_}}', function(matched_expression)
+    return load('return ' .. matched_expression)()
+  end)
+  renderer.register('{{_tomorrow_}}', function()
+    local t = os.date('*t')
+    t.day = t.day + 1
+    ---@diagnostic disable-next-line: param-type-mismatch
+    return os.date('%c', os.time(t))
+  end)
+  renderer.register('{{_camel_file_}}', function(_)
+      local file_name = fn.expand('%:t:r')
+      local camel_case_file_name = ''
+      local up_next = true
+      for i = 1, #file_name do
+        local char = file_name:sub(i,i)
+        if char == '_' then
+          up_next = true
+        elseif up_next then
+          camel_case_file_name = camel_case_file_name..string.upper(char)
+          up_next = false
+        else
+          camel_case_file_name = camel_case_file_name..char
+        end
+      end
+      return camel_case_file_name
+  end)
+end
+
+renderer.render_line = function(line)
+  local rendered = vim.deepcopy(line)
+  for _, expr in ipairs(renderer.expressions) do
+    if line:find(expr) then
+      while rendered:match(expr) do
+        local replacement = renderer.expression_replacer_map[expr](rendered:match(expr))
+        rendered = rendered:gsub(expr, replacement, 1)
+      end
+    end
+  end
+  return rendered
+end
+
 function temp.get_temp_list()
   temp.temp_dir = fs.normalize(temp.temp_dir)
   local res = {}
@@ -37,98 +103,14 @@ function temp.get_temp_list()
 end
 
 local function expand_expr()
-  local expr = {
-    '{{_date_}}',
-    '{{_cursor_}}',
-    '{{_file_name_}}',
-    '{{_author_}}',
-    '{{_email_}}',
-    '{{_variable_}}',
-    '{{_upper_file_}}',
-    '{{_lua:(.-)_}}',
-    '{{_tomorrow_}}',
-    '{{_cammel_file_}}',
-  }
-
-  local function expand_recursively(line, expr, replacement)
-    while line:match(expr) do
-      line = line:gsub(expr, replacement, 1)
-    end
-    return line
-  end
-
-  local expr_map = {
-    [expr[1]] = function(line)
-      local date = os.date('%Y-%m-%d %H:%M:%S')
-      return expand_recursively(line, expr[1], date)
-    end,
-    [expr[2]] = function(line)
-      return expand_recursively(line, expr[2], '')
-    end,
-    [expr[3]] = function(line)
-      local file_name = fn.expand('%:t:r')
-      return expand_recursively(line, expr[3], file_name)
-    end,
-    [expr[4]] = function(line)
-      return expand_recursively(line, expr[4], temp.author)
-    end,
-    [expr[5]] = function(line)
-      return expand_recursively(line, expr[5], temp.email)
-    end,
-    [expr[6]] = function(line)
-      if not line:match(expr[6]) then
-        return line
-      end
-      local var = vim.fn.input('Variable name: ', '')
-      return expand_recursively(line, expr[6], var)
-    end,
-    [expr[7]] = function(line)
-      local file_name = string.upper(fn.expand('%:t:r'))
-      return expand_recursively(line, expr[7], file_name)
-    end,
-    [expr[8]] = function(line)
-      while line:match(expr[8]) do
-        line = line:gsub(expr[8], load('return ' .. line:match(expr[8]))(), 1)
-      end
-      return line
-    end,
-    [expr[9]] = function(line)
-      local t = os.date('*t')
-      t.day = t.day + 1
-      ---@diagnostic disable-next-line: param-type-mismatch
-      local next = os.date('%c', os.time(t))
-      return expand_recursively(line, expr[9], next)
-    end,
-    [expr[10]] = function(line)
-      local file_name = fn.expand('%:t:r')
-      local camel_case_file_name = ''
-      local up_next = true
-      for i = 1, #file_name do
-        local char = file_name:sub(i,i)
-        if char == '_' then
-          up_next = true
-        elseif up_next then
-          camel_case_file_name = camel_case_file_name..string.upper(char)
-          up_next = false
-        else
-          camel_case_file_name = camel_case_file_name..char
-        end
-      end
-      return expand_recursively(line, expr[10], camel_case_file_name)
-    end,
-  }
-
   return function(line)
     local cursor
-    line = vim.deepcopy(line)
 
-    if line:find(expr[2]) then
+    if line:find(cursor_pattern) then
       cursor = true
     end
 
-    for i, item in ipairs(expr) do
-      line = expr_map[item](line)
-    end
+    line = renderer.render_line(line)
 
     return line, cursor
   end
@@ -267,6 +249,7 @@ function temp.in_template(buf)
 end
 
 function temp.setup(config)
+  renderer.register_builtins()
   vim.validate({
     config = { config, 't' },
   })
