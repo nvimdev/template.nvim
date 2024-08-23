@@ -155,6 +155,11 @@ lsp server by Filetype event.
 a rule of `tpl` template is you must set `;; filetype` in first line like a rust template file
 `http.tpl` and first line must be `;; rust` 
 
+- Add a new template expression
+
+```lua
+require('template').register('{{_path_}}', function() vim.fn.expand('%') end)
+```
 
 - Config a fancy keymap
 
