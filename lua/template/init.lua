@@ -248,6 +248,8 @@ function temp.in_template(buf)
   return false
 end
 
+temp.register = renderer.register
+
 function temp.setup(config)
   renderer.register_builtins()
   vim.validate({
