@@ -102,18 +102,16 @@ function temp.get_temp_list()
   return res
 end
 
-local function expand_expr()
-  return function(line)
-    local cursor
+local function expand_expressions(line)
+  local cursor
 
-    if line:find(cursor_pattern) then
-      cursor = true
-    end
-
-    line = renderer.render_line(line)
-
-    return line, cursor
+  if line:find(cursor_pattern) then
+    cursor = true
   end
+
+  line = renderer.render_line(line)
+
+  return line, cursor
 end
 
 --@private
@@ -199,7 +197,6 @@ function temp:generate_template(args)
       data = data:gsub('\r\n?', '\n')
       local tbl = vim.split(data, '\n')
 
-      local _expand = expand_expr()
       local skip_lines = 0
 
       for i, v in ipairs(tbl) do
@@ -210,7 +207,7 @@ function temp:generate_template(args)
             goto continue
           end
         end
-        local line, cursor = _expand(v)
+        local line, cursor = expand_expressions(v)
         lines[#lines + 1] = line
         if cursor then
           cursor_pos = { i - skip_lines, 2 }
