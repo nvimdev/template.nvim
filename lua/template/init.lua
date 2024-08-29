@@ -111,10 +111,10 @@ function temp.get_temp_list()
     end
 
     if ft then
-      if not res[vim.bo.filetype] then
-        res[vim.bo.filetype] = {}
+      if not res[extention] then
+        res[extention] = {}
       end
-      res[vim.bo.filetype][#res[vim.bo.filetype] + 1] = name
+      res[extention][#res[extention]+1] = name
     -- else
       -- vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
     end
