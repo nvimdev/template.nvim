@@ -5,14 +5,14 @@ local sep = uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
 local cursor_pattern = '{{_cursor_}}'
 local renderer = {
   expressions = {},
-  expression_replacer_map = {}
+  expression_replacer_map = {},
 }
 
 ---@param expr string
 ---@param replacer function(match: string): string
-renderer.register = function (expr, replacer)
+renderer.register = function(expr, replacer)
   if renderer.expression_replacer_map[expr] then
-    vim.notify('The expression '..expr..' is registered already. Will not add the replacer.', vim.log.levels.ERROR)
+    vim.notify('The expression ' .. expr .. ' is registered already. Will not add the replacer.', vim.log.levels.ERROR)
     return
   end
   table.insert(renderer.expressions, expr)
@@ -20,13 +20,27 @@ renderer.register = function (expr, replacer)
 end
 
 renderer.register_builtins = function()
-  renderer.register('{{_date_}}', function(_) return os.date('%Y-%m-%d %H:%M:%S') end)
-  renderer.register(cursor_pattern, function(_) return '' end)
-  renderer.register('{{_file_name_}}', function(_) return fn.expand('%:t:r') end)
-  renderer.register('{{_author_}}', function(_) return temp.author end)
-  renderer.register('{{_email_}}', function(_) return temp.email end)
-  renderer.register('{{_variable_}}', function(_) return vim.fn.input('Variable name: ', '') end)
-  renderer.register('{{_upper_file_}}', function(_) return string.upper(fn.expand('%:t:r')) end)
+  renderer.register('{{_date_}}', function(_)
+    return os.date('%Y-%m-%d %H:%M:%S')
+  end)
+  renderer.register(cursor_pattern, function(_)
+    return ''
+  end)
+  renderer.register('{{_file_name_}}', function(_)
+    return fn.expand('%:t:r')
+  end)
+  renderer.register('{{_author_}}', function(_)
+    return temp.author
+  end)
+  renderer.register('{{_email_}}', function(_)
+    return temp.email
+  end)
+  renderer.register('{{_variable_}}', function(_)
+    return vim.fn.input('Variable name: ', '')
+  end)
+  renderer.register('{{_upper_file_}}', function(_)
+    return string.upper(fn.expand('%:t:r'))
+  end)
   renderer.register('{{_lua:(.-)_}}', function(matched_expression)
     return load('return ' .. matched_expression)()
   end)
@@ -37,21 +51,21 @@ renderer.register_builtins = function()
     return os.date('%c', os.time(t))
   end)
   renderer.register('{{_camel_file_}}', function(_)
-      local file_name = fn.expand('%:t:r')
-      local camel_case_file_name = ''
-      local up_next = true
-      for i = 1, #file_name do
-        local char = file_name:sub(i,i)
-        if char == '_' then
-          up_next = true
-        elseif up_next then
-          camel_case_file_name = camel_case_file_name..string.upper(char)
-          up_next = false
-        else
-          camel_case_file_name = camel_case_file_name..char
-        end
+    local file_name = fn.expand('%:t:r')
+    local camel_case_file_name = ''
+    local up_next = true
+    for i = 1, #file_name do
+      local char = file_name:sub(i, i)
+      if char == '_' then
+        up_next = true
+      elseif up_next then
+        camel_case_file_name = camel_case_file_name .. string.upper(char)
+        up_next = false
+      else
+        camel_case_file_name = camel_case_file_name .. char
       end
-      return camel_case_file_name
+    end
+    return camel_case_file_name
   end)
 end
 
@@ -66,6 +80,10 @@ renderer.render_line = function(line)
     end
   end
   return rendered
+end
+
+function Get_file_extention(url)
+  return url:match("^.+%.(.+)$")
 end
 
 function temp.get_temp_list()
@@ -83,19 +101,22 @@ function temp.get_temp_list()
   result = vim.list_extend(result, link)
 
   for _, name in ipairs(result) do
-    local ft = vim.filetype.match({ filename = name })
-    if ft == 'smarty' then
+    local extention = Get_file_extention(name)
+    local ft = vim.bo.filetype == extention
+
+    if not ft and extention == "tpl" then
       local first_row = vim.fn.readfile(name, '', 1)[1]
-      ft = vim.split(first_row, '%s')[2]
+      extention = vim.split(first_row, '%s')[2]
+      ft = true
     end
 
     if ft then
-      if not res[ft] then
-        res[ft] = {}
+      if not res[vim.bo.filetype] then
+        res[vim.bo.filetype] = {}
       end
-      res[ft][#res[ft] + 1] = name
-    else
-      vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
+      res[vim.bo.filetype][#res[vim.bo.filetype] + 1] = name
+    -- else
+      -- vim.notify('[Template.nvim] Could not find the filetype of template file ' .. name, vim.log.levels.INFO)
     end
   end
 
@@ -202,7 +223,7 @@ function temp:generate_template(args)
       for i, v in ipairs(tbl) do
         if i == 1 then
           local line_data = vim.split(v, '%s')
-          if #line_data == 2 and ";;" == line_data[1] then
+          if #line_data == 2 and ';;' == line_data[1] then
             skip_lines = skip_lines + 1
             goto continue
           end
