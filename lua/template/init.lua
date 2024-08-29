@@ -87,6 +87,7 @@ function Get_file_extention(url)
 end
 
 function temp.get_temp_list()
+  local current_buf = api.nvim_get_current_buf()
   temp.temp_dir = fs.normalize(temp.temp_dir)
   local res = {}
 
@@ -102,9 +103,9 @@ function temp.get_temp_list()
 
   for _, name in ipairs(result) do
     local extention = Get_file_extention(name)
-    local ft = vim.bo.filetype == extention
+    local ft = vim.bo[current_buf].filetype == extention
 
-    if not ft and extention == "tpl" then
+    if not ft then
       local first_row = vim.fn.readfile(name, '', 1)[1]
       extention = vim.split(first_row, '%s')[2]
       ft = true
@@ -242,6 +243,7 @@ function temp:generate_template(args)
         start = cur_line - 1
       end
       api.nvim_buf_set_lines(current_buf, start, cur_line, false, lines)
+      vim.notify("&s, %s", tostring(cur_line), tostring(cursor_pos[1]))
       cursor_pos[1] = start ~= 0 and cur_line + cursor_pos[1] or cursor_pos[1]
 
       if next(cursor_pos) ~= nil then
