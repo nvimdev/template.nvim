@@ -36,7 +36,7 @@ renderer.register_builtins = function()
     ---@diagnostic disable-next-line: param-type-mismatch
     return os.date('%c', os.time(t))
   end)
-  renderer.register('{{_camel_file_}}', function(_)
+  renderer.register('{{_camel_case_file_}}', function(_)
       local file_name = fn.expand('%:t:r')
       local camel_case_file_name = ''
       local up_next = true
